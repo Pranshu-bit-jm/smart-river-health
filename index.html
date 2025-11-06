@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart River Health Monitor</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #d0f0f7, #a8e6cf);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      padding: 30px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+    }
+    h1 {
+      color: #00796b;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #aaa;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #00796b;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+    .result-box {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      display: none;
+    }
+    .clean { background-color: #b9fbc0; }
+    .moderate { background-color: #fff5ba; }
+    .polluted { background-color: #ffadad; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Smart River Health Monitor 🛶</h1>
+    <p>Enter your local river readings below to check water quality.</p>
+
+    <label>pH Value (1–14)</label><br>
+    <input type="number" id="ph" min="1" max="14" step="0.1"><br>
+
+    <label>Temperature (°C)</label><br>
+    <input type="number" id="temp" min="0" max="50" step="0.1"><br>
+
+    <label>Turbidity Level</label><br>
+    <select id="turbidity">
+      <option value="low">Low (clear water)</option>
+      <option value="medium">Medium (slightly cloudy)</option>
+      <option value="high">High (muddy water)</option>
+    </select><br>
+
+    <button onclick="analyzeWater()">Analyze Water</button>
+
+    <div id="result" class="result-box"></div>
+  </div>
+
+  <script>
+    function analyzeWater() {
+      const ph = parseFloat(document.getElementById('ph').value);
+      const temp = parseFloat(document.getElementById('temp').value);
+      const turbidity = document.getElementById('turbidity').value;
+      const resultBox = document.getElementById('result');
+
+      if (isNaN(ph) || isNaN(temp)) {
+        alert('Please enter valid numeric values for pH and Temperature.');
+        return;
+      }
+
+      // --- Score Calculation ---
+      let phScore = 100 - Math.abs(7 - ph) * 15;
+      phScore = Math.max(0, Math.min(100, phScore));
+
+      let tempScore = 100 - Math.abs(25 - temp);
+      tempScore = Math.max(0, Math.min(100, tempScore));
+
+      let turbidityScore;
+      if (turbidity === 'low') turbidityScore = 100;
+      else if (turbidity === 'medium') turbidityScore = 70;
+      else turbidityScore = 40;
+
+      const RHI = Math.round((phScore + tempScore + turbidityScore) / 3);
+
+      // --- Determine Status ---
+      let status, advice, cssClass;
+      if (RHI >= 80) {
+        status = 'Clean';
+        advice = 'Water is healthy and suitable for aquatic life. Keep protecting the area!';
+        cssClass = 'clean';
+      } else if (RHI >= 50) {
+        status = 'Moderate';
+        advice = 'Water quality is fair but may be affected by waste or sediment. Consider cleaning or filtration.';
+        cssClass = 'moderate';
+      } else {
+        status = 'Polluted';
+        advice = 'Water is unsafe. Avoid contact and report pollution sources nearby.';
+        cssClass = 'polluted';
+      }
+
+      // --- Display Results ---
+      resultBox.style.display = 'block';
+      resultBox.className = 'result-box ' + cssClass;
+      resultBox.innerHTML = `
+        <h3>River Health Index: ${RHI}/100</h3>
+        <h2>Status: ${status}</h2>
+        <p><strong>pH:</strong> ${ph} | <strong>Temp:</strong> ${temp}°C | <strong>Turbidity:</strong> ${turbidity}</p>
+        <p>${advice}</p>
+      `;
+    }
+  </script>
+</body>
+</html>
