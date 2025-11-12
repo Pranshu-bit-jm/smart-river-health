@@ -1,140 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart River Health Monitor</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart River Health Monitor 🛶</title>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom right, #d0f0f7, #a8e6cf);
+      background: linear-gradient(120deg, #b5e3ff, #e0f7ff);
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      color: #033b5b;
     }
+
+    header {
+      background-color: #0277bd;
+      color: white;
+      padding: 15px 0;
+      text-align: center;
+      font-size: 1.5em;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    nav {
+      background: #01579b;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px 0;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
     .container {
+      max-width: 600px;
+      margin: 40px auto;
       background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       padding: 30px;
-      width: 90%;
-      max-width: 500px;
       text-align: center;
     }
-    h1 {
-      color: #00796b;
-      margin-bottom: 10px;
+
+    h2 {
+      color: #01579b;
     }
-    p {
-      color: #333;
-      margin-bottom: 20px;
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
     }
-    input, select, button {
+
+    input, select {
       width: 80%;
       padding: 10px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: 1px solid #aaa;
-      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1em;
+      text-align: center;
     }
+
     button {
-      background-color: #00796b;
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background-color: #004d40;
-    }
-    .result-box {
       margin-top: 20px;
-      padding: 15px;
-      border-radius: 10px;
-      display: none;
+      padding: 12px 25px;
+      background-color: #0288d1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
     }
-    .clean { background-color: #b9fbc0; }
-    .moderate { background-color: #fff5ba; }
-    .polluted { background-color: #ffadad; }
+
+    button:hover {
+      background-color: #0277bd;
+    }
+
+    .result {
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 12px;
+      color: white;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .good { background-color: #2e7d32; }
+    .moderate { background-color: #f9a825; }
+    .bad { background-color: #c62828; }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background-color: #01579b;
+      color: white;
+      font-size: 0.9em;
+      margin-top: 40px;
+    }
+
+    @media(max-width: 600px) {
+      .container { width: 90%; }
+      input, select { width: 95%; }
+    }
   </style>
 </head>
 <body>
+  <header>🌊 Smart River Health Monitoring System</header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="phchart.html">pH Chart</a>
+    <a href="map.html">World Map</a>
+    <a href="details.html">Details</a>
+  </nav>
+
   <div class="container">
-    <h1>Smart River Health Monitor 🛶</h1>
-    <p>Enter your local river readings below to check water quality.</p>
+    <h2>Enter River Data</h2>
 
-    <label>pH Value (1–14)</label><br>
-    <input type="number" id="ph" min="1" max="14" step="0.1"><br>
+    <label for="ph">pH Level (0 - 14):</label>
+    <input type="number" id="ph" step="0.1" placeholder="e.g. 7" min="0" max="14">
 
-    <label>Temperature (°C)</label><br>
-    <input type="number" id="temp" min="0" max="50" step="0.1"><br>
+    <label for="temp">Temperature (°C):</label>
+    <input type="number" id="temp" placeholder="e.g. 25" min="-10" max="100">
 
-    <label>Turbidity Level</label><br>
+    <label for="turbidity">Turbidity:</label>
     <select id="turbidity">
-      <option value="low">Low (clear water)</option>
-      <option value="medium">Medium (slightly cloudy)</option>
-      <option value="high">High (muddy water)</option>
-    </select><br>
+      <option value="low">Low (Clear)</option>
+      <option value="medium">Medium (Cloudy)</option>
+      <option value="high">High (Muddy)</option>
+    </select>
 
-    <button onclick="analyzeWater()">Analyze Water</button>
+    <button onclick="calculateHealth()">Check River Health</button>
 
-    <div id="result" class="result-box"></div>
+    <div id="result" class="result" style="display:none;"></div>
   </div>
 
+  <footer>
+    © 2025 Smart River Health Project | Created by Sneaky Soul & Team 🌎
+  </footer>
+
   <script>
-    function analyzeWater() {
+    function calculateHealth() {
       const ph = parseFloat(document.getElementById('ph').value);
       const temp = parseFloat(document.getElementById('temp').value);
       const turbidity = document.getElementById('turbidity').value;
-      const resultBox = document.getElementById('result');
+      const resultDiv = document.getElementById('result');
 
       if (isNaN(ph) || isNaN(temp)) {
         alert('Please enter valid numeric values for pH and Temperature.');
         return;
       }
 
-      // --- Score Calculation ---
-      let phScore = 100 - Math.abs(7 - ph) * 15;
-      phScore = Math.max(0, Math.min(100, phScore));
+      // pH Score
+      let phScore = 0;
+      if (ph >= 6.5 && ph <= 8.5) phScore = 100;
+      else if ((ph >= 5.5 && ph < 6.5) || (ph > 8.5 && ph <= 9.0)) phScore = 80;
+      else if ((ph >= 4.5 && ph < 5.5) || (ph > 9.0 && ph <= 10)) phScore = 60;
+      else if ((ph >= 3 && ph < 4.5) || (ph > 10 && ph <= 11)) phScore = 40;
+      else phScore = 20;
 
-      let tempScore = 100 - Math.abs(25 - temp);
-      tempScore = Math.max(0, Math.min(100, tempScore));
+      // Temperature Score
+      let tempScore = 0;
+      if (temp >= 20 && temp <= 30) tempScore = 100;
+      else if ((temp >= 15 && temp < 20) || (temp > 30 && temp <= 35)) tempScore = 80;
+      else if ((temp >= 10 && temp < 15) || (temp > 35 && temp <= 40)) tempScore = 60;
+      else if ((temp >= 5 && temp < 10) || (temp > 40 && temp <= 45)) tempScore = 40;
+      else tempScore = 20;
 
-      let turbidityScore;
-      if (turbidity === 'low') turbidityScore = 100;
-      else if (turbidity === 'medium') turbidityScore = 70;
-      else turbidityScore = 40;
+      // Turbidity Score
+      let turbScore = turbidity === "low" ? 100 : turbidity === "medium" ? 70 : 40;
 
-      const RHI = Math.round((phScore + tempScore + turbidityScore) / 3);
+      // Final Health Index
+      const healthIndex = Math.round((phScore + tempScore + turbScore) / 3);
 
-      // --- Determine Status ---
-      let status, advice, cssClass;
-      if (RHI >= 80) {
-        status = 'Clean';
-        advice = 'Water is healthy and suitable for aquatic life. Keep protecting the area!';
-        cssClass = 'clean';
-      } else if (RHI >= 50) {
-        status = 'Moderate';
-        advice = 'Water quality is fair but may be affected by waste or sediment. Consider cleaning or filtration.';
-        cssClass = 'moderate';
-      } else {
-        status = 'Polluted';
-        advice = 'Water is unsafe. Avoid contact and report pollution sources nearby.';
-        cssClass = 'polluted';
-      }
+      // Get Advice
+      const advice = getAdvice(healthIndex);
 
-      // --- Display Results ---
-      resultBox.style.display = 'block';
-      resultBox.className = 'result-box ' + cssClass;
-      resultBox.innerHTML = `
-        <h3>River Health Index: ${RHI}/100</h3>
-        <h2>Status: ${status}</h2>
-        <p><strong>pH:</strong> ${ph} | <strong>Temp:</strong> ${temp}°C | <strong>Turbidity:</strong> ${turbidity}</p>
-        <p>${advice}</p>
-      `;
+      // Update UI
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `River Health Index: <strong>${healthIndex}/100</strong><br>${advice}`;
+
+      if (healthIndex >= 80) resultDiv.className = "result good";
+      else if (healthIndex >= 50) resultDiv.className = "result moderate";
+      else resultDiv.className = "result bad";
+    }
+
+    function getAdvice(index) {
+      const advices = [
+        "Dead zone water — zero biological activity possible.",
+        "Critical hazard — total ecosystem collapse likely.",
+        "Toxic and life-threatening; treat before contact.",
+        "Water heavily compromised — unsuitable for any use.",
+        "High chemical pollution suspected.",
+        "Dangerous levels — immediate government alert needed.",
+        "Severe contamination — do not use water.",
+        "Toxic levels detected — requires urgent cleanup.",
+        "Unsafe for aquatic life; report source immediately.",
+        "Heavy pollutants likely; avoid discharge or consumption.",
+        "Water unsuitable for domestic use — filter before contact.",
+        "Fish survival at risk; perform aeration or cleaning.",
+        "Low oxygen potential; alert local environmental body.",
+        "Moderate pollution; plant vegetation near banks.",
+        "Water quality fair — avoid overuse or disposal nearby.",
+        "Water slightly turbid; check for upstream erosion.",
+        "Minor sediment observed — consider simple filtration.",
+        "Slight organic matter detected — keep area clean.",
+        "Healthy water — monitor occasionally for pollutants.",
+        "Water is pristine — excellent for aquatic biodiversity."
+      ];
+      const idx = Math.min(Math.floor(index / 5), advices.length - 1);
+      return advices[idx];
     }
   </script>
 </body>
