@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Map | Smart River Health Monitor</title>
+
+  <!-- Leaflet CSS for Map -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(120deg, #b5e3ff, #e0f7ff);
+      margin: 0;
+      padding: 0;
+      color: #033b5b;
+    }
+
+    header {
+      background-color: #0277bd;
+      color: white;
+      padding: 15px 0;
+      text-align: center;
+      font-size: 1.5em;
+      font-weight: 600;
+    }
+
+    nav {
+      background: #01579b;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px 0;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    h2 {
+      color: #01579b;
+      text-align: center;
+    }
+
+    #map {
+      height: 500px;
+      width: 100%;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background-color: #01579b;
+      color: white;
+      font-size: 0.9em;
+      margin-top: 30px;
+    }
+
+    @media(max-width: 600px) {
+      .container { width: 90%; padding: 10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>🌊 Smart River Health Monitoring System</header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="phchart.html">pH Chart</a>
+    <a href="map.html">World Map</a>
+    <a href="details.html">Details</a>
+  </nav>
+
+  <div class="container">
+    <h2>Global River Health Visualization 🌎</h2>
+    <p style="text-align:center;">Explore simulated river health readings across the world.  
+      Markers show locations where water quality has been reported.</p>
+
+    <div id="map"></div>
+  </div>
+
+  <footer>
+    © 2025 Smart River Health Project | Created by Sneaky Soul & Team 🌎
+  </footer>
+
+  <!-- Leaflet JS for Map -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1j0r3b0JzS+x7M9A6GjP7ar3M7wTTV4O8WcUCh3s="
+    crossorigin=""
+  ></script>
+
+  <script>
+    // Initialize the map
+    const map = L.map('map').setView([20, 0], 2); // Center globally
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Sample Data Points (can be expanded)
+    const locations = [
+      { name: "Ganga River - India", coords: [25.4, 83.0], index: 72 },
+      { name: "Amazon River - Brazil", coords: [-3.4, -60.0], index: 85 },
+      { name: "Thames River - UK", coords: [51.5, -0.1], index: 68 },
+      { name: "Nile River - Egypt", coords: [30.0, 31.2], index: 55 },
+      { name: "Yangtze River - China", coords: [31.2, 121.5], index: 78 },
+      { name: "Mississippi River - USA", coords: [35.0, -90.0], index: 50 },
+      { name: "Seine River - France", coords: [48.8, 2.3], index: 81 },
+      { name: "Mekong River - Vietnam", coords: [10.7, 106.7], index: 64 },
+      { name: "Zambezi River - Zambia", coords: [-15.4, 28.3], index: 58 },
+      { name: "Indus River - Pakistan", coords: [25.0, 68.9], index: 40 }
+    ];
+
+    // Marker colors based on index
+    function getColor(index) {
+      if (index >= 80) return "green";
+      if (index >= 50) return "orange";
+      return "red";
+    }
+
+    // Add markers
+    locations.forEach(loc => {
+      const color = getColor(loc.index);
+      const marker = L.circleMarker(loc.coords, {
+        radius: 8,
+        fillColor: color,
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+      }).addTo(map);
+
+      marker.bindPopup(`<b>${loc.name}</b><br>Health Index: ${loc.index}/100`);
+    });
+  </script>
+</body>
+</html>
