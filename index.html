@@ -1,225 +1,774 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart River Health Monitor 🛶</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart River Health — Advanced Monitor</title>
+
+  <!-- Manifest (PWA) -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Leaflet for map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(120deg, #b5e3ff, #e0f7ff);
-      margin: 0;
-      padding: 0;
-      color: #033b5b;
+    /* -------------------------
+       Global layout & theme
+       ------------------------- */
+    :root{
+      --primary:#026aa7;
+      --accent:#00b4d8;
+      --bg1:#e6f7ff;
+      --card: #ffffffcc;
+      --good:#2e7d32;
+      --warn:#f9a825;
+      --bad:#c62828;
+      --glass: rgba(255,255,255,0.12);
+      --max-width:1100px;
+      --radius:14px;
+      --mono: 'Roboto Mono', monospace;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #dff6ff, #eafcff);
+      color:#06344f;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      padding:20px;
+    }
+    header{
+      max-width:var(--max-width);
+      margin:0 auto 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .logo{
+      width:58px;height:58px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--accent));
+      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1.4rem;
+      box-shadow: 0 6px 20px rgba(2,106,150,0.18);
+    }
+    h1{font-size:1.35rem;margin:0}
+    .sub{font-size:0.9rem;color:#024a63;opacity:0.9}
+
+    /* -------------------------
+       Layout grid
+       ------------------------- */
+    main{
+      max-width:var(--max-width);
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:20px;
+      align-items:start;
+    }
+    @media(max-width:1100px){ main{grid-template-columns:1fr 360px} }
+    @media(max-width:900px){ main{grid-template-columns:1fr} header{flex-direction:column;align-items:flex-start} }
+
+    /* -------------------------
+       Left column (controls)
+       ------------------------- */
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:0 10px 30px rgba(3,50,70,0.06);
+      border:1px solid rgba(2,58,80,0.04);
+    }
+    .controls .row{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+    .controls label{font-weight:600;font-size:0.95rem;color:#023b4f;margin-bottom:6px;display:block}
+    input[type="number"], select, .cal-slider{
+      width:100%;padding:10px;border-radius:10px;border:1px solid #cfeefc;background:white;
+      font-size:1rem;
+    }
+    .small{width:110px}
+    .btn{
+      display:inline-block;padding:12px 18px;border-radius:12px;background:var(--primary);color:white;font-weight:700;border:none;cursor:pointer;
+      box-shadow:0 6px 18px rgba(2,106,150,0.18);
+    }
+    .btn.secondary{background:transparent;color:var(--primary);border:1px solid rgba(2,106,150,0.12);font-weight:600}
+    .muted{color:#0b6b86;font-size:0.9rem}
+
+    /* -------------------------
+       Live result area (big)
+       ------------------------- */
+    .result-large{
+      margin-top:12px;padding:20px;border-radius:12px;display:flex;gap:18px;align-items:center;
+      justify-content:space-between;
+    }
+    .index-bubble{
+      width:160px;height:160px;border-radius:100%;display:flex;align-items:center;justify-content:center;
+      font-size:1.7rem;font-weight:800;color:white;box-shadow:0 8px 30px rgba(3,50,70,0.15);
+    }
+    .index-meta{flex:1;padding-left:12px;text-align:left}
+    .index-meta h2{margin:0 0 6px;font-size:1.2rem}
+    .advice-long{font-size:0.98rem;margin-top:8px;background:rgba(255,255,255,0.06);padding:12px;border-radius:10px;color:#062d3a}
+    .status-chip{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;color:white;margin-left:6px}
+
+    /* -------------------------
+       Right column (charts + map)
+       ------------------------- */
+    .panel{margin-bottom:18px}
+    .chartwrap{height:240px;padding:8px}
+    #map{height:320px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:white}
+
+    /* -------------------------
+       History table
+       ------------------------- */
+    .history{
+      margin-top:14px;
+      max-height:220px;overflow:auto;border-radius:10px;padding-right:8px;
+    }
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;text-align:left;border-bottom:1px dashed rgba(2,58,80,0.06);font-size:0.93rem}
+    th{position:sticky;top:0;background:linear-gradient(180deg,#f7fdff,#ecfbff);z-index:2;font-weight:700}
+    .controls-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    @media(max-width:900px){ .controls-grid{grid-template-columns:1fr} }
+
+    /* -------------------------
+       small UI helpers
+       ------------------------- */
+    .legend{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .legend .item{display:flex;gap:6px;align-items:center}
+    .swatch{width:18px;height:18px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+    .footer{max-width:var(--max-width);margin:20px auto;color:#08475d;font-size:0.9rem;text-align:center}
+    .note{font-size:0.9rem;color:#033b5b;opacity:0.9}
+
+    /* -------------------------
+       print-friendly tweaks
+       ------------------------- */
+    @media print{
+      body{background:white;color:black}
+      header, .btn, nav, .map-actions, .footer{display:none}
     }
 
-    header {
-      background-color: #0277bd;
-      color: white;
-      padding: 15px 0;
-      text-align: center;
-      font-size: 1.5em;
-      font-weight: 600;
-      letter-spacing: 1px;
-    }
-
-    nav {
-      background: #01579b;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      padding: 10px 0;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      padding: 30px;
-      text-align: center;
-    }
-
-    h2 {
-      color: #01579b;
-    }
-
-    label {
-      display: block;
-      margin: 15px 0 5px;
-      font-weight: bold;
-    }
-
-    input, select {
-      width: 80%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1em;
-      text-align: center;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 12px 25px;
-      background-color: #0288d1;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1em;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0277bd;
-    }
-
-    .result {
-      margin-top: 25px;
-      padding: 20px;
-      border-radius: 12px;
-      color: white;
-      font-weight: bold;
-      transition: all 0.3s ease;
-    }
-
-    .good { background-color: #2e7d32; }
-    .moderate { background-color: #f9a825; }
-    .bad { background-color: #c62828; }
-
-    footer {
-      text-align: center;
-      padding: 15px;
-      background-color: #01579b;
-      color: white;
-      font-size: 0.9em;
-      margin-top: 40px;
-    }
-
-    @media(max-width: 600px) {
-      .container { width: 90%; }
-      input, select { width: 95%; }
-    }
   </style>
 </head>
 <body>
-  <header>🌊 Smart River Health Monitoring System</header>
+  <header>
+    <div class="brand">
+      <div class="logo">SR</div>
+      <div>
+        <h1>Smart River Health — Advanced Monitor</h1>
+        <div class="sub">Realistic scoring, dynamic advice, history, charts & map — Exhibition-ready</div>
+      </div>
+    </div>
 
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="phchart.html">pH Chart</a>
-    <a href="map.html">World Map</a>
-    <a href="details.html">Details</a>
-  </nav>
+    <div>
+      <button class="btn" id="exportCsvBtn" title="Export saved readings as CSV">Export CSV</button>
+      <button class="btn secondary" id="printReport" title="Print result / Save as PDF">Print Report</button>
+    </div>
+  </header>
 
-  <div class="container">
-    <h2>Enter River Data</h2>
+  <main>
+    <!-- LEFT: controls + result -->
+    <section class="card controls">
+      <h3 style="margin-top:0">Enter water readings</h3>
 
-    <label for="ph">pH Level (0 - 14):</label>
-    <input type="number" id="ph" step="0.1" placeholder="e.g. 7" min="0" max="14">
+      <div class="controls-grid">
+        <div>
+          <label for="input-ph">pH value (0.0–14.0)</label>
+          <input id="input-ph" type="number" step="0.1" min="0" max="14" placeholder="e.g. 7.2">
+        </div>
 
-    <label for="temp">Temperature (°C):</label>
-    <input type="number" id="temp" placeholder="e.g. 25" min="-10" max="100">
+        <div>
+          <label for="input-temp">Temperature (°C)</label>
+          <input id="input-temp" type="number" step="0.1" min="-10" max="60" placeholder="e.g. 25.0">
+        </div>
+      </div>
 
-    <label for="turbidity">Turbidity:</label>
-    <select id="turbidity">
-      <option value="low">Low (Clear)</option>
-      <option value="medium">Medium (Cloudy)</option>
-      <option value="high">High (Muddy)</option>
-    </select>
+      <div style="margin-top:10px">
+        <label for="input-turb">Turbidity</label>
+        <select id="input-turb">
+          <option value="low">Low — Clear</option>
+          <option value="med">Medium — Cloudy</option>
+          <option value="high">High — Muddy</option>
+        </select>
+      </div>
 
-    <button onclick="calculateHealth()">Check River Health</button>
+      <div class="row" style="margin-top:14px;display:flex;gap:10px">
+        <button class="btn" id="calcBtn">Analyze (Auto)</button>
+        <button class="btn secondary" id="saveBtn">Save Reading</button>
+        <button class="btn secondary" id="clearHistory">Clear History</button>
+      </div>
 
-    <div id="result" class="result" style="display:none;"></div>
+      <div class="note" style="margin-top:10px">
+        Tip: For demonstrations, try mixing tap water (clear), diluted milk (cloudy), or soil suspension (muddy) to see different results.
+      </div>
+
+      <!-- Calibration controls -->
+      <div style="margin-top:18px">
+        <details open>
+          <summary style="font-weight:700">Calibration & Weights (advanced)</summary>
+          <div style="margin-top:10px">
+            <div style="display:flex;gap:12px;align-items:center">
+              <div style="width:120px">pH weight</div>
+              <input id="weight-ph" type="number" class="small" value="0.45" step="0.01" min="0" max="1" />
+              <div class="muted">Weight (default 0.45)</div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:center;margin-top:8px">
+              <div style="width:120px">Temp weight</div>
+              <input id="weight-temp" type="number" class="small" value="0.28" step="0.01" min="0" max="1" />
+              <div class="muted">Weight (default 0.28)</div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:center;margin-top:8px">
+              <div style="width:120px">Turbidity weight</div>
+              <input id="weight-turb" type="number" class="small" value="0.27" step="0.01" min="0" max="1" />
+              <div class="muted">Weight (default 0.27)</div>
+            </div>
+
+            <div style="margin-top:10px" class="muted">Weights must sum to 1. Press <b>Analyze</b> after changing.</div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Large Result -->
+      <div id="liveResult" class="result-large" style="margin-top:18px">
+        <div id="idxBubble" class="index-bubble" style="background:linear-gradient(135deg,var(--good),#66bb6a)">100</div>
+        <div class="index-meta">
+          <h2 id="statusTitle">Status: <span id="statusText">Excellent</span>
+            <span id="statusChip" class="status-chip" style="background:var(--good)">GOOD</span>
+          </h2>
+          <div class="muted" id="subscoreText">pH: 100 • Temp: 100 • Turbidity: 100</div>
+          <div class="advice-long" id="adviceLong" style="margin-top:10px">
+            Excellent — water quality is near pristine. Continue protection and periodic monitoring.
+          </div>
+        </div>
+      </div>
+
+      <!-- Short legend -->
+      <div style="margin-top:12px" class="legend">
+        <div class="item"><div class="swatch" style="background:var(--good)"></div> Good (80–100)</div>
+        <div class="item"><div class="swatch" style="background:var(--warn)"></div> Moderate (50–79)</div>
+        <div class="item"><div class="swatch" style="background:var(--bad)"></div> Poor (0–49)</div>
+      </div>
+
+      <!-- History -->
+      <div style="margin-top:14px">
+        <h4 style="margin:10px 0 8px">Recent readings</h4>
+        <div class="history card" id="historyWrap">
+          <table id="historyTable" aria-live="polite">
+            <thead><tr><th>When</th><th>pH</th><th>Temp °C</th><th>Turbidity</th><th>Index</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: charts + map -->
+    <aside style="display:flex;flex-direction:column;gap:18px">
+      <div class="card panel">
+        <h4 style="margin-top:0">Recent Index Chart</h4>
+        <div class="chartwrap">
+          <canvas id="indexChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <h4 style="margin-top:0">pH Distribution (sample)</h4>
+        <div class="chartwrap">
+          <canvas id="phChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <h4 style="margin-top:0">Sample World Map</h4>
+        <div id="map"></div>
+      </div>
+
+    </aside>
+  </main>
+
+  <div class="footer">
+    Built for exhibition and class demonstration. You can tune the calibration weights, save readings, export CSV, and print a report.
   </div>
 
-  <footer>
-    © 2025 Smart River Health Project | Created by Sneaky Soul & Team 🌎
-  </footer>
-
+  <!-- Service worker registration (optional) -->
   <script>
-    function calculateHealth() {
-      const ph = parseFloat(document.getElementById('ph').value);
-      const temp = parseFloat(document.getElementById('temp').value);
-      const turbidity = document.getElementById('turbidity').value;
-      const resultDiv = document.getElementById('result');
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').then(() => {
+        console.log('Service worker registered (if service-worker.js exists).');
+      }).catch(()=>{/* ignore */});
+    }
+  </script>
 
-      if (isNaN(ph) || isNaN(temp)) {
-        alert('Please enter valid numeric values for pH and Temperature.');
+  <!-- Main application script (long, advanced logic) -->
+  <script>
+  (function(){
+
+    /*** --------------------------
+         Advice array: 101 messages
+         Index 0..100 -> unique message
+         -------------------------- ***/
+    const adviceByIndex = [
+      "Index 0 — Catastrophic: Waterway likely biologically dead. Immediate full remediation required.",
+      "Index 1 — Catastrophic: Toxic conditions; do not allow access. Emergency cleanup necessary.",
+      "Index 2 — Catastrophic: Severe pollutants detected; sample for heavy metals and industrial chemicals.",
+      "Index 3 — Catastrophic: Very high risk to wildlife and humans. Close access and alert authorities.",
+      "Index 4 — Critical: Chemical contamination probable — collect lab samples and isolate the source.",
+      "Index 5 — Critical: Water extremely unsafe. No contact, animals, or irrigation.",
+      "Index 6 — Critical: Ecosystem collapse indicators; immediate intervention.",
+      "Index 7 — Critical: Toxic runoff suspected; test for pesticides and heavy metals.",
+      "Index 8 — Critical: Biological oxygen demand (BOD) likely very high. Aeration and removal needed.",
+      "Index 9 — Critical: Avoid human contact; treat for pathogens and chemicals.",
+      "Index 10 — Severe: Heavy pollution. Suspended solids and organics likely high.",
+      "Index 11 — Severe: Not safe for irrigation or animals. Lab analysis required.",
+      "Index 12 — Severe: Immediate notifications to local environmental authority advised.",
+      "Index 13 — Severe: Dangerous for aquatic life, fish kills possible.",
+      "Index 14 — Severe: Strongly contaminated; restrict use.",
+      "Index 15 — Very Unhealthy: Significant toxins; do not use for domestic purposes.",
+      "Index 16 — Very Unhealthy: Clean-up plan needed; check upstream industrial activity.",
+      "Index 17 — Very Unhealthy: Dredging and filtration may be required in hotspots.",
+      "Index 18 — Very Unhealthy: Sample for nitrates, phosphates and heavy metals.",
+      "Index 19 — Very Unhealthy: Human contact discouraged.",
+      "Index 20 — Unhealthy: High turbidity/imbalance; immediate corrective steps advised.",
+      "Index 21 — Unhealthy: Sediment and runoff must be controlled, set sediment traps.",
+      "Index 22 — Unhealthy: Test DO (dissolved oxygen) and nutrient loads immediately.",
+      "Index 23 — Unhealthy: Reduce fertilizer use nearby; plant buffer strips.",
+      "Index 24 — Unhealthy: Avoid drinking and bathing. Evaluate WWTP discharge nearby.",
+      "Index 25 — Poor: Consider local cleanup and bioremediation efforts.",
+      "Index 26 — Poor: Test for coliforms and pathogens before any human use.",
+      "Index 27 — Poor: Add aeration, reduce organic load, and start monitoring program.",
+      "Index 28 — Poor: High turbidity reducing light penetration — affects plants.",
+      "Index 29 — Poor: Immediate remedial steps; fence-off for safety if required.",
+      "Index 30 — Degraded: Significant stress on ecosystem. Restoration recommended.",
+      "Index 31 — Degraded: Perform targeted cleanup and bank stabilization.",
+      "Index 32 — Degraded: Erosion control measures needed upstream.",
+      "Index 33 — Degraded: Check for illegal dumping or sewage inflow.",
+      "Index 34 — Degraded: Relocate livestock access points away from the water.",
+      "Index 35 — Warning: Turbidity and pH need attention; monitor weekly.",
+      "Index 36 — Warning: Some aquatic species may be stressed; monitor biodiversity.",
+      "Index 37 — Warning: Consider passive filtration: reed beds, silt traps.",
+      "Index 38 — Warning: Limit recreational use until quality improves.",
+      "Index 39 — Warning: Increase sampling frequency to every 1–2 weeks.",
+      "Index 40 — Poor: Elevated risk; install simple filters and limit exposure.",
+      "Index 41 — Poor: Check upstream land use for contamination sources.",
+      "Index 42 — Poor: Consider community cleanup and awareness campaigns.",
+      "Index 43 — Poor: Apply basic treatment if used for irrigation.",
+      "Index 44 — Poor: Identify pollution hotspots and remediate.",
+      "Index 45 — Unsafe: Do not use for drinking or bathing without treatment.",
+      "Index 46 — Unsafe: Restrict animal watering from this source.",
+      "Index 47 — Unsafe: Signage and public warnings recommended.",
+      "Index 48 — Unsafe: Consider buffer zones with vegetation planting.",
+      "Index 49 — Unsafe: Perform chemical and bacterial testing immediately.",
+      "Index 50 — Borderline: Sub-optimal; not ideal for sensitive species.",
+      "Index 51 — Borderline: Start corrective actions: vegetation, filtration.",
+      "Index 52 — Borderline: Monitor frequent storms and runoff after rain.",
+      "Index 53 — Borderline: Install silt fences and control erosion.",
+      "Index 54 — Borderline: Check potential septic leakages upstream.",
+      "Index 55 — Moderate: Improve riparian planting and bank protection.",
+      "Index 56 — Moderate: Limit point-source discharges; use containment.",
+      "Index 57 — Moderate: Small improvements will push index above 60.",
+      "Index 58 — Moderate: Gradual recovery possible with simple steps.",
+      "Index 59 — Moderate: Consider community-based cleanup programs.",
+      "Index 60 — Fair: Minor issues: turbidity or temp fluctuations.",
+      "Index 61 — Fair: Control sediment and reduce waste entry points.",
+      "Index 62 — Fair: Test for intermittent pollution sources.",
+      "Index 63 — Fair: Aeration or flow improvement may help.",
+      "Index 64 — Fair: Planting riverbanks can improve stability.",
+      "Index 65 — Good: Water mostly healthy; keep monitoring monthly.",
+      "Index 66 — Good: Minimal issues, maintain natural buffers.",
+      "Index 67 — Good: Low turbidity and neutral pH — support diverse life.",
+      "Index 68 — Good: Watch for occasional spikes after heavy rain.",
+      "Index 69 — Good: Good overall — community stewardship recommended.",
+      "Index 70 — Very Good: Small seasonal variations only.",
+      "Index 71 — Very Good: Protect upstream areas from development.",
+      "Index 72 — Very Good: Excellent for most species; occasional monitoring.",
+      "Index 73 — Very Good: Continue to prevent point-source discharges.",
+      "Index 74 — Very Good: Good oxygen levels expected in most seasons.",
+      "Index 75 — Excellent: Near pristine; minimal human impact.",
+      "Index 76 — Excellent: Biodiversity likely high; preserve surrounding habitat.",
+      "Index 77 — Excellent: Maintain conservation practices and awareness.",
+      "Index 78 — Excellent: Very healthy system; occasional checks enough.",
+      "Index 79 — Excellent: Encourage educational activities and citizen science.",
+      "Index 80 — Pristine: Minimal pollution; natural processes functioning well.",
+      "Index 81 — Pristine: Ideal for aquatic life and recreation (with care).",
+      "Index 82 — Pristine: Low nutrients and good light penetration.",
+      "Index 83 — Pristine: Minimal turbidity and stable temperature range.",
+      "Index 84 — Pristine: Excellent — use as a baseline reference site.",
+      "Index 85 — Outstanding: Exceptional water quality; protect from disturbance.",
+      "Index 86 — Outstanding: Ideal site for biodiversity monitoring.",
+      "Index 87 — Outstanding: Excellent indicators across all parameters.",
+      "Index 88 — Outstanding: No immediate action required; monitor seasonally.",
+      "Index 89 — Outstanding: Very high quality; engage community stakeholders.",
+      "Index 90 — Near-perfect: Extremely healthy; minimize all human impacts.",
+      "Index 91 — Near-perfect: A model site for restoration projects.",
+      "Index 92 — Near-perfect: Preserve surrounding land use as-is.",
+      "Index 93 — Near-perfect: Rare quality; document and protect it.",
+      "Index 94 — Near-perfect: Ideal conditions for spawning species.",
+      "Index 95 — Pristine benchmark: Do not allow development nearby.",
+      "Index 96 — Pristine benchmark: Protect as conservation priority.",
+      "Index 97 — Pristine benchmark: Exceptional ecological functions.",
+      "Index 98 — Pristine benchmark: Outstanding long-term monitoring site.",
+      "Index 99 — Pristine benchmark: Natural reference quality (rare).",
+      "Index 100 — Perfect: Exemplary water quality. Celebrate and conserve!"
+    ];
+
+    /*** --------------------------
+         Utility functions
+         -------------------------- ***/
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+    function round(v, d=0){ return Number(v.toFixed(d)); }
+
+    /*** --------------------------
+         Scoring algorithm (improved)
+         - Nonlinear penalties
+         - Weights adjustable by user
+         -------------------------- ***/
+    function scorePH(ph) {
+      // ideal 6.5 - 8.5
+      // penalty increases faster as you move away from center 7.5
+      const center = 7.5;
+      const diff = Math.abs(ph - center);
+      // base score 100 minus curve; moderate tolerance ±1.5 -> small penalty
+      // use an exponential-like curve: penalty = 15 * (diff^1.6)
+      const penalty = 15 * Math.pow(diff, 1.6);
+      const s = clamp(100 - penalty, 0, 100);
+      return s;
+    }
+
+    function scoreTemp(temp) {
+      // ideal 20 - 26 (slightly narrowed for aquatic life)
+      // penalty: small when within range, increases outside
+      const low = 20, high = 26;
+      if (temp >= low && temp <= high) return 100;
+      if (temp < low) {
+        // penalty proportional to difference, but lighter for mild cold
+        const diff = low - temp;
+        const penalty = 6 * Math.pow(diff, 1.2);
+        return clamp(100 - penalty, 0, 100);
+      } else {
+        // heat hurts faster: steeper penalty
+        const diff = temp - high;
+        const penalty = 8 * Math.pow(diff, 1.25);
+        return clamp(100 - penalty, 0, 100);
+      }
+    }
+
+    function scoreTurb(turbidity) {
+      // turbidity categories map to scores
+      if (turbidity === 'low') return 100;
+      if (turbidity === 'med') return 62; // stronger penalty for cloudiness
+      if (turbidity === 'high') return 28; // muddy -> big hit
+      return 50;
+    }
+
+    // Combine with weight and final nonlinear adjustment
+    function computeFinalIndex(ph, temp, turb, weights) {
+      const phS = scorePH(ph);
+      const tempS = scoreTemp(temp);
+      const turbS = scoreTurb(turb);
+
+      // Weighted average
+      const raw = (phS * weights.ph + tempS * weights.temp + turbS * weights.turb);
+
+      // environmental buffer: if any subscore is very low, amplify penalty
+      const minSub = Math.min(phS, tempS, turbS);
+      let adj = raw;
+      if (minSub < 35) {
+        // amplify penalty when one parameter is critical
+        const extraPenalty = (35 - minSub) * 0.6; // up to ~20
+        adj = raw - extraPenalty;
+      }
+
+      // final clamp
+      return clamp(round(adj), 0, 100);
+    }
+
+    /*** --------------------------
+         UI wiring and data persistence
+         -------------------------- ***/
+    const inputPH = document.getElementById('input-ph');
+    const inputTemp = document.getElementById('input-temp');
+    const inputTurb = document.getElementById('input-turb');
+    const calcBtn = document.getElementById('calcBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const clearHistoryBtn = document.getElementById('clearHistory');
+    const idxBubble = document.getElementById('idxBubble');
+    const statusText = document.getElementById('statusText');
+    const statusChip = document.getElementById('statusChip');
+    const subscoreText = document.getElementById('subscoreText');
+    const adviceLong = document.getElementById('adviceLong');
+    const historyTbody = document.querySelector('#historyTable tbody');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const printBtn = document.getElementById('printReport');
+
+    // weights inputs
+    const wPhInput = document.getElementById('weight-ph');
+    const wTempInput = document.getElementById('weight-temp');
+    const wTurbInput = document.getElementById('weight-turb');
+
+    // Chart instances
+    let indexChart = null;
+    let phChart = null;
+
+    // storage
+    const STORAGE_KEY = 'srh_readings_v1';
+
+    function loadHistory(){
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+      } catch(e){ return []; }
+    }
+    function saveHistory(arr){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    }
+
+    function addHistoryEntry(entry){
+      const arr = loadHistory();
+      arr.unshift(entry);
+      // keep only last 200 entries for demo
+      if (arr.length>200) arr.length=200;
+      saveHistory(arr);
+      renderHistory();
+      updateCharts();
+    }
+
+    function clearHistory(){
+      localStorage.removeItem(STORAGE_KEY);
+      renderHistory();
+      updateCharts();
+    }
+
+    function renderHistory(){
+      const arr = loadHistory();
+      historyTbody.innerHTML = '';
+      arr.forEach(r=>{
+        const tr = document.createElement('tr');
+        const when = new Date(r.ts).toLocaleString();
+        tr.innerHTML = `<td>${when}</td><td>${r.ph}</td><td>${r.temp}</td><td>${r.turb}</td><td>${r.index}</td>`;
+        historyTbody.appendChild(tr);
+      });
+    }
+
+    /*** --------------------------
+         Chart setup (Chart.js)
+         -------------------------- ***/
+    function createCharts(){
+      const idxCtx = document.getElementById('indexChart').getContext('2d');
+      const phCtx = document.getElementById('phChart').getContext('2d');
+
+      indexChart = new Chart(idxCtx, {
+        type:'line',
+        data:{labels:[],datasets:[
+          {label:'River Health Index', data:[], borderWidth:2, tension:0.25, fill:true, backgroundColor:'rgba(2,118,161,0.12)', borderColor:'#025f8f', pointRadius:3}
+        ]},
+        options:{
+          responsive:true,
+          scales:{y:{min:0,max:100}},
+          plugins:{legend:{display:false}, tooltip:{mode:'index',intersect:false}}
+        }
+      });
+
+      phChart = new Chart(phCtx, {
+        type:'bar',
+        data:{labels:[], datasets:[
+          {label:'pH', data:[], backgroundColor:[]}
+        ]},
+        options:{
+          responsive:true,
+          scales:{y:{min:0,max:14}},
+          plugins:{legend:{display:false}, tooltip:{mode:'index'}}
+        }
+      });
+    }
+
+    function updateCharts(){
+      const arr = loadHistory().slice(0,50).reverse(); // oldest->newest
+      indexChart.data.labels = arr.map(a => new Date(a.ts).toLocaleTimeString());
+      indexChart.data.datasets[0].data = arr.map(a => a.index);
+      indexChart.update();
+
+      phChart.data.labels = arr.map(a => new Date(a.ts).toLocaleTimeString());
+      phChart.data.datasets[0].data = arr.map(a => a.ph);
+      phChart.data.datasets[0].backgroundColor = arr.map(a => a.index>=80 ? 'rgba(46,125,50,0.8)' : a.index>=50 ? 'rgba(249,168,37,0.8)' : 'rgba(198,40,40,0.8)');
+      phChart.update();
+    }
+
+    /*** --------------------------
+         Map (Leaflet) with sample points
+         -------------------------- ***/
+    function initMap(){
+      const mapEl = document.getElementById('map');
+      const map = L.map(mapEl).setView([20,0],2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      // sample dataset (you can later add live user submissions)
+      const samples = [
+        {name:"Ganga (Varanasi)", coords:[25.3,83.0], index:72},
+        {name:"Amazon (Manaus)", coords:[-3.1,-60.0], index:85},
+        {name:"Mississippi (Memphis)", coords:[35.15,-90.05], index:52},
+        {name:"Thames (London)", coords:[51.5,-0.12], index:68},
+        {name:"Yangtze (Shanghai)", coords:[31.2,121.5], index:78},
+        {name:"Nile (Cairo)", coords:[30.0,31.2], index:55},
+        {name:"Mekong (Ho Chi Minh)", coords:[10.8,106.7], index:64},
+        {name:"Zambezi (Vic Falls)", coords:[-17.9,25.9], index:58},
+        {name:"Indus (Sindh)", coords:[25.0,67.9], index:40},
+        {name:"Seine (Paris)", coords:[48.85,2.35], index:81}
+      ];
+
+      samples.forEach(s=>{
+        const color = s.index>=80?'green': s.index>=50 ? 'orange' : 'red';
+        const marker = L.circleMarker(s.coords, {radius:8, fillColor:color, color:'#000', weight:0.6, fillOpacity:0.9}).addTo(map);
+        marker.bindPopup(`<strong>${s.name}</strong><br/>Index: ${s.index}/100`);
+      });
+    }
+
+    /*** --------------------------
+         Display update & helpers
+         -------------------------- ***/
+    function setResultUI(index, phS, tS, turbS, details){
+      const idx = index;
+      idxBubble.textContent = idx;
+      // color bubble
+      if (idx >= 80){
+        idxBubble.style.background = 'linear-gradient(135deg,var(--good),#66bb6a)';
+        statusChip.textContent = 'GOOD';
+        statusChip.style.background = 'var(--good)';
+        statusText.textContent = 'Excellent';
+      } else if (idx >= 50){
+        idxBubble.style.background = 'linear-gradient(135deg,#f9a825,#ffecb3)';
+        statusChip.textContent = 'MODERATE';
+        statusChip.style.background = 'var(--warn)';
+        statusText.textContent = 'Moderate';
+      } else {
+        idxBubble.style.background = 'linear-gradient(135deg,#ef5350,#ffcdd2)';
+        statusChip.textContent = 'POOR';
+        statusChip.style.background = 'var(--bad)';
+        statusText.textContent = 'Poor';
+      }
+
+      subscoreText.textContent = `pH: ${round(phS)} • Temp: ${round(tS)} • Turbidity: ${round(turbS)}`;
+      adviceLong.innerHTML = `<strong>${adviceByIndex[idx]}</strong><div style="margin-top:8px;color:#083e4c">${details}</div>`;
+    }
+
+    /*** --------------------------
+         Main analyze function
+         -------------------------- ***/
+    function analyzeAndShow(saveFlag=false){
+      const ph = parseFloat(inputPH.value);
+      const temp = parseFloat(inputTemp.value);
+      const turb = inputTurb.value;
+
+      if (isNaN(ph) || isNaN(temp)){
+        alert('Enter valid numbers for pH and Temperature.');
         return;
       }
 
-      // pH Score
-      let phScore = 0;
-      if (ph >= 6.5 && ph <= 8.5) phScore = 100;
-      else if ((ph >= 5.5 && ph < 6.5) || (ph > 8.5 && ph <= 9.0)) phScore = 80;
-      else if ((ph >= 4.5 && ph < 5.5) || (ph > 9.0 && ph <= 10)) phScore = 60;
-      else if ((ph >= 3 && ph < 4.5) || (ph > 10 && ph <= 11)) phScore = 40;
-      else phScore = 20;
+      // read weights and normalize
+      let wph = parseFloat(wPhInput.value)||0.45;
+      let wtemp = parseFloat(wTempInput.value)||0.28;
+      let wturb = parseFloat(wTurbInput.value)||0.27;
+      const sum = wph + wtemp + wturb;
+      if (sum <= 0) { wph=0.45; wtemp=0.28; wturb=0.27; }
+      wph/=sum; wtemp/=sum; wturb/=sum;
+      const weights = {ph:wph, temp:wtemp, turb:wturb};
 
-      // Temperature Score
-      let tempScore = 0;
-      if (temp >= 20 && temp <= 30) tempScore = 100;
-      else if ((temp >= 15 && temp < 20) || (temp > 30 && temp <= 35)) tempScore = 80;
-      else if ((temp >= 10 && temp < 15) || (temp > 35 && temp <= 40)) tempScore = 60;
-      else if ((temp >= 5 && temp < 10) || (temp > 40 && temp <= 45)) tempScore = 40;
-      else tempScore = 20;
+      // compute sub-scores
+      const phScore = scorePH(ph);
+      const tempScore = scoreTemp(temp);
+      const turbScore = scoreTurb(turb);
 
-      // Turbidity Score
-      let turbScore = turbidity === "low" ? 100 : turbidity === "medium" ? 70 : 40;
+      const idx = computeFinalIndex(ph, temp, turb, weights);
 
-      // Final Health Index
-      const healthIndex = Math.round((phScore + tempScore + turbScore) / 3);
+      // details string
+      const details = `Detailed scores — pH:${round(phScore,1)} | Temp:${round(tempScore,1)} | Turb:${round(turbScore,1)}. Weights — pH:${round(wph,2)}, Temp:${round(wtemp,2)}, Turb:${round(wturb,2)}.`;
 
-      // Get Advice
-      const advice = getAdvice(healthIndex);
+      setResultUI(idx, phScore, tempScore, turbScore, details);
 
-      // Update UI
-      resultDiv.style.display = 'block';
-      resultDiv.innerHTML = `River Health Index: <strong>${healthIndex}/100</strong><br>${advice}`;
+      // save to history optionally
+      if (saveFlag){
+        const entry = {ts: Date.now(), ph: ph, temp: temp, turb: turb, index: idx};
+        addHistoryEntry(entry);
+      }
 
-      if (healthIndex >= 80) resultDiv.className = "result good";
-      else if (healthIndex >= 50) resultDiv.className = "result moderate";
-      else resultDiv.className = "result bad";
+      // update charts if not saving
+      updateCharts();
+      return idx;
     }
 
-    function getAdvice(index) {
-      const advices = [
-        "Dead zone water — zero biological activity possible.",
-        "Critical hazard — total ecosystem collapse likely.",
-        "Toxic and life-threatening; treat before contact.",
-        "Water heavily compromised — unsuitable for any use.",
-        "High chemical pollution suspected.",
-        "Dangerous levels — immediate government alert needed.",
-        "Severe contamination — do not use water.",
-        "Toxic levels detected — requires urgent cleanup.",
-        "Unsafe for aquatic life; report source immediately.",
-        "Heavy pollutants likely; avoid discharge or consumption.",
-        "Water unsuitable for domestic use — filter before contact.",
-        "Fish survival at risk; perform aeration or cleaning.",
-        "Low oxygen potential; alert local environmental body.",
-        "Moderate pollution; plant vegetation near banks.",
-        "Water quality fair — avoid overuse or disposal nearby.",
-        "Water slightly turbid; check for upstream erosion.",
-        "Minor sediment observed — consider simple filtration.",
-        "Slight organic matter detected — keep area clean.",
-        "Healthy water — monitor occasionally for pollutants.",
-        "Water is pristine — excellent for aquatic biodiversity."
-      ];
-      const idx = Math.min(Math.floor(index / 5), advices.length - 1);
-      return advices[idx];
+    /*** --------------------------
+         Export CSV
+         -------------------------- ***/
+    function exportCSV(){
+      const arr = loadHistory();
+      if (!arr || arr.length===0){ alert('No saved readings to export. Save readings first.'); return; }
+      const header = ['timestamp','ph','temp','turbidity','index'];
+      const rows = arr.map(r => [new Date(r.ts).toISOString(), r.ph, r.temp, r.turb, r.index]);
+      const csv = [header.join(','), ...rows.map(r=>r.join(','))].join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'river_readings.csv'; document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
     }
+
+    /*** --------------------------
+         Wire events
+         -------------------------- ***/
+    calcBtn.addEventListener('click', ()=>analyzeAndShow(false));
+    saveBtn.addEventListener('click', ()=>{ analyzeAndShow(true); });
+    clearHistoryBtn.addEventListener('click', ()=>{ if(confirm('Clear all saved readings?')) clearHistory(); });
+    exportCsvBtn.addEventListener('click', exportCSV);
+    printBtn.addEventListener('click', ()=> window.print());
+
+    // keyboard: Enter on inputs triggers analyze
+    [inputPH,inputTemp,inputTurb].forEach(el=>{
+      el.addEventListener('keyup', (e)=>{ if(e.key==='Enter') analyzeAndShow(false); });
+    });
+
+    // initial setup
+    createCharts();
+    initMap();
+    renderHistory();
+    updateCharts();
+    // prefill example values for demo
+    inputPH.value = 7.2; inputTemp.value = 25.0; inputTurb.value = 'low';
+    analyzeAndShow(false);
+
+  })();
   </script>
+
+  <!-- Optional service worker file content:
+       Create a separate file named "service-worker.js" in same folder with this content
+       if you want the site to be available offline after first load.
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open('srh-cache-v1').then(cache => {
+      return cache.addAll(['/', '/index.html', '/phchart.html', '/map.html', '/details.html',
+        'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+        'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+        'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+      ]);
+    })
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(caches.match(event.request).then(r => r || fetch(event.request)));
+});
+  -->
+
 </body>
 </html>
