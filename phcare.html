@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>pH Care — Smart River Health</title>
+
+  <style>
+    :root{
+      --primary:#0277bd; --accent:#00b4d8; --bg:#e9fbff; --card:#ffffff;
+      --good:#2e7d32; --warn:#f9a825; --bad:#c62828; --muted:#055c6b;
+      --radius:12px; --maxw:1000px;
+    }
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,var(--bg), #f0fcff); color:#053546; padding:18px;
+    }
+    header{max-width:var(--maxw); margin:0 auto 18px; display:flex; align-items:center; justify-content:space-between;}
+    .brand{display:flex; gap:12px; align-items:center;}
+    .logo{width:54px;height:54px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+    h1{margin:0;font-size:1.3rem}
+    .sub{color:var(--muted); font-size:0.92rem}
+
+    nav{max-width:var(--maxw); margin:6px auto 22px; display:flex; gap:16px; justify-content:center}
+    nav a{color:#fff;background:var(--primary);padding:10px 12px;border-radius:8px;text-decoration:none;font-weight:600}
+    nav a.secondary{background:#fff;color:var(--primary);border:1px solid rgba(2,55,92,0.08)}
+
+    main{max-width:var(--maxw); margin:0 auto; display:grid; grid-template-columns:1fr 380px; gap:18px}
+    @media(max-width:980px){ main{grid-template-columns:1fr} nav{flex-wrap:wrap} }
+
+    .card{background:var(--card); border-radius:var(--radius); padding:18px; box-shadow:0 8px 30px rgba(3,50,70,0.06)}
+    .lead{font-size:1rem; color:#053546}
+    label{font-weight:700; display:block; margin-top:10px}
+    input[type="number"], select, input[type="text"] {width:100%; padding:10px; margin-top:6px; border-radius:8px; border:1px solid #d9f0f7}
+    button{background:var(--primary); color:white; padding:10px 14px; border-radius:10px; border:none; font-weight:700; cursor:pointer}
+    button.secondary{background:transparent;color:var(--primary);border:1px solid rgba(2,55,92,0.08)}
+
+    .danger{color:var(--bad); font-weight:700}
+    .success{color:var(--good); font-weight:700}
+
+    .big-result{font-size:2.6rem; font-weight:800; color:var(--primary); text-align:center; padding:18px 10px; border-radius:10px}
+    .advice{background:#f7fffe; padding:12px; border-radius:8px; margin-top:12px; color:#043a47}
+
+    .section-title{font-weight:800; color:var(--primary); margin-top:8px; margin-bottom:6px}
+    .muted{color:#094b58; font-size:0.95rem}
+
+    .howto{margin-top:8px; padding:10px; background:linear-gradient(180deg,#ffffff,#f0fcff); border-radius:8px; border:1px solid rgba(2,55,92,0.04)}
+    .howto ol{padding-left:18px}
+
+    .resources{font-size:0.92rem; margin-top:12px}
+    .resource-link{display:block; margin:6px 0; color:var(--primary); text-decoration:none}
+
+    .faq{margin-top:8px}
+    .faq details{margin-bottom:8px}
+
+    .print-note{font-size:0.9rem; color:#064a5e; margin-top:8px}
+
+    footer{max-width:var(--maxw); margin:20px auto; text-align:center; color:#064a5e}
+    .small{font-size:0.9rem; color:#0b5566}
+    .kbd{background:#eaf9ff;padding:4px 8px;border-radius:6px;border:1px solid rgba(2,55,92,0.04);font-family:var(--mono);font-size:0.9rem}
+
+    /* long content spacing */
+    .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    @media(max-width:980px){ .grid-2{grid-template-columns:1fr} }
+
+    /* printable card */
+    @media print {
+      nav, header .logo, .no-print { display: none !important; }
+      body{background:white}
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="logo">PH</div>
+      <div>
+        <h1>pH Care & Neutralization — Smart River Health</h1>
+        <div class="sub">Actionable, safety-first guidance for acidic or alkaline water (citizen-friendly)</div>
+      </div>
+    </div>
+
+    <div>
+      <button class="secondary no-print" onclick="window.print()">Print this page</button>
+    </div>
+  </header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="phchart.html" class="secondary">pH Chart</a>
+    <a href="map.html" class="secondary">Map</a>
+    <a href="details.html" class="secondary">Details</a>
+    <a href="phcare.html" class="secondary">pH Care</a>
+  </nav>
+
+  <main>
+    <!-- LEFT: primary content -->
+    <section class="card">
+      <div class="lead">Enter a measured pH value and temperature (optional). This page will give step-by-step, practical, safe advice on how to <strong>move the water toward neutral</strong>.</div>
+
+      <label for="phInput">Measured pH (0.0 - 14.0)</label>
+      <input id="phInput" type="number" step="0.1" min="0" max="14" placeholder="e.g. 5.3">
+
+      <label for="tempInput">Temperature (°C) — optional</label>
+      <input id="tempInput" type="number" step="0.1" min="-10" max="60" placeholder="e.g. 22.5">
+
+      <label for="volumeInput">Sample / Container Volume (litres) — optional</label>
+      <input id="volumeInput" type="number" step="0.1" min="0.01" placeholder="e.g. 1.0">
+
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button id="analyzeBtn">Get pH Care Plan</button>
+        <button id="quickBtn" class="secondary">Quick Tips</button>
+      </div>
+
+      <div id="resultBlock" style="margin-top:14px; display:none;">
+        <div class="big-result" id="phResult">pH 7.0</div>
+        <div class="advice" id="adviceBlock">Advice will appear here</div>
+      </div>
+
+      <div class="section-title">Why pH matters</div>
+      <p class="muted">
+        Clean natural waters and most drinking supplies are typically near <strong>pH 6.5–8.5</strong>. pH outside this range can harm aquatic organisms and change toxicity of metals and chemicals. (See WHO & EPA resources below.) :contentReference[oaicite:4]{index=4}
+      </p>
+
+      <div class="section-title">Immediate safety checklist</div>
+      <div class="howto">
+        <ol>
+          <li><strong>If pH &lt; 6 or &gt; 9:</strong> avoid using or drinking the water until treated or tested further.</li>
+          <li>Always wear protective gloves and eye protection when handling concentrates (baking soda, citric acid, commercial neutralizers).</li>
+          <li>Work in small increments: add tiny amounts, mix, re-test — do not “dump” chemicals in large amounts.</li>
+          <li>For large volumes or natural waterways (streams, rivers), contact local environmental authorities before any intervention (you may disturb ecosystems).</li>
+        </ol>
+      </div>
+
+      <div class="section-title">Full, step-by-step treatment plan</div>
+
+      <div id="planContent" class="howto" style="margin-top:8px">
+        <!-- JS will inject detailed step plan here -->
+      </div>
+
+      <div class="section-title">Laboratory & field testing tips</div>
+      <div class="howto">
+        <ul>
+          <li>Use a calibrated pH meter or fresh test strips. Electrode meters must be calibrated with standard buffers (pH 4, 7, 10) for accuracy. :contentReference[oaicite:5]{index=5}</li>
+          <li>Temperature affects pH measurement — record temperature and, if possible, use temperature compensation. :contentReference[oaicite:6]{index=6}</li>
+          <li>For legal or safety-critical use, collect and send a sample to a certified lab (especially if industrial pollution is suspected).</li>
+        </ul>
+      </div>
+
+      <div class="section-title">Do-it-yourself neutralization methods (field & home)</div>
+      <div class="grid-2">
+        <div>
+          <h4>For Acidic Water (pH &lt; 6.5)</h4>
+          <ul>
+            <li><strong>Crushed limestone / calcite neutralizer (recommended for larger volumes):</strong> pass water through calcite/limestone media — this slowly raises pH by dissolving calcium carbonate. This is a safe, long-term option for continuous flow. :contentReference[oaicite:7]{index=7}</li>
+            <li><strong>Baking soda (sodium bicarbonate) — small samples only:</strong> add very small amounts incrementally and re-test. Baking soda increases alkalinity and pH moderately and is a good short-term fix for small containers.</li>
+            <li><strong>Crushed shells or coral:</strong> for temporary field filtration (pass water slowly through crushed shells to raise pH — used historically in rudimentary filtration).</li>
+            <li><strong>Plant-based buffers:</strong> establish aquatic plants and riparian vegetation to buffer acidity over time — a long-term ecological approach.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4>For Alkaline Water (pH &gt; 8.5)</h4>
+          <ul>
+            <li><strong>Dilution:</strong> the safest first step — blend with low-alkalinity freshwater (rainwater or deionized/distilled water) where safe and permitted.</li>
+            <li><strong>Peat or organic filters:</strong> passing water through peat moss beds gently lowers pH by releasing organic acids (suitable for ponds and small systems).</li>
+            <li><strong>Citric acid or food-grade acid (small, measured doses):</strong> in very small samples, a diluted citric acid solution will lower pH. Add tiny amounts, mix, and re-test. Avoid undiluted acids and avoid using on natural rivers without expert advice.</li>
+            <li><strong>Avoid strong acids in the field:</strong> never pour concentrated acids into natural systems.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section-title">Practical “how many scoops” approach (safety-first)</div>
+      <p class="muted">
+        Exact chemical dosages depend on alkalinity, hardness, salt content, and volume — never assume one-size-fits-all. Instead, use the <em>titration method</em> below:
+      </p>
+      <div class="howto">
+        <ol>
+          <li>Start with a <strong>small test volume</strong>: e.g., 1 liter in a clear container.</li>
+          <li>Add a measured tiny amount (for baking soda, try 1/8 teaspoon ≈ 0.6 g) and mix thoroughly, then re-test pH.</li>
+          <li>If change is small, repeat (add another 1/8 tsp). Continue until you approach neutral (6.5–8.5) — record how much you added to scale up carefully.</li>
+          <li>For scaling up, always scale proportionally but re-check — scaling is not always linear due to buffering capacity.</li>
+          <li>If the water has strong buffering (alkalinity), small additions may have little effect — you may need a different method (calcite, commercial neutralizer) or lab assistance.</li>
+        </ol>
+        <div class="muted" style="margin-top:8px">This page does not give exact dosing for bulk river interventions — those require lab tests and environmental authority guidance.</div>
+      </div>
+
+      <div class="section-title">When to call professionals</div>
+      <div class="howto">
+        <ul>
+          <li>Large streams, lakes, or any public water: do not attempt chemical neutralization without consulting local environmental/water authorities.</li>
+          <li>If industrial contamination is suspected (chemical smell, dead fish, unusual colors): stop and notify authorities immediately.</li>
+          <li>If pH is extreme (&lt;4 or &gt;11) and affecting human or animal health, contact professionals for lab analysis and response.</li>
+        </ul>
+      </div>
+
+      <div class="section-title">Printable quick-action checklist</div>
+      <div class="howto">
+        <ol>
+          <li>Record measured pH, temperature, time, and GPS or location note.</li>
+          <li>If pH between 6.5–8.5: note as "normal", no urgent action; consider monthly checks.</li>
+          <li>If slightly off (5.5–6.4 or 8.6–9.5): follow gentle actions (plant buffers, test upstream), and retest in 48–72 hours.</li>
+          <li>If strongly off (&lt;5.5 or &gt;9.5) — avoid use and notify relevant local body.</li>
+        </ol>
+        <div class="print-note">Tip: Use the "Print" button (top right) to make a report you can hand to authorities or keep with samples.</div>
+      </div>
+
+      <div class="section-title">Full FAQ & Troubleshooting</div>
+      <div class="faq">
+        <details><summary><strong>Q: Can I use vinegar to lower pH?</strong></summary>
+          <div class="howto">Vinegar (acetic acid) will lower pH but is not recommended for large or natural systems — it can introduce organic loads and is hard to control. For small samples only and in emergencies, use highly diluted vinegar and retest often.</div>
+        </details>
+
+        <details><summary><strong>Q: How fast will pH change after treatment?</strong></summary>
+          <div class="howto">It depends on mixing, buffering capacity, temperature, and biological activity. Small container changes are fast (minutes). Large bodies may take hours to days to equilibrate.</div>
+        </details>
+
+        <details><summary><strong>Q: Will changing pH harm fish?</strong></summary>
+          <div class="howto">Rapid pH swings can stress or kill aquatic life. Always change pH slowly, especially in natural or inhabited systems.</div>
+        </details>
+
+        <details><summary><strong>Q: How do I measure alkalinity or buffering?</strong></summary>
+          <div class="howto">Alkalinity titration (lab or field kits) measures buffering capacity. If buffering is high, simple additives may not move pH much.</div>
+        </details>
+      </div>
+
+      <div class="section-title">Detailed scientific & practical resources</div>
+      <div class="resources">
+        <a class="resource-link" href="https://www.epa.gov/caddis/ph" target="_blank">US EPA — pH and water quality overview</a> :contentReference[oaicite:8]{index=8}
+        <a class="resource-link" href="https://www.who.int/publications/i/item/9789240045064" target="_blank">WHO — Guidelines for drinking-water quality (pH context)</a> :contentReference[oaicite:9]{index=9}
+        <a class="resource-link" href="https://www.usgs.gov/water-science-school/science/ph-and-water" target="_blank">USGS — pH and water (explanations)</a> :contentReference[oaicite:10]{index=10}
+        <a class="resource-link" href="https://www.watertreatmentguide.com/calcite_neutralization.htm" target="_blank">Calcite neutralization guide — WaterTreatmentGuide</a> :contentReference[oaicite:11]{index=11}
+        <a class="resource-link" href="https://robu.in/product/analog-ph-sensor-kit/" target="_blank">If you later do sensors — sample pH module product (example supplier)</a>
+      </div>
+
+    </section>
+
+    <!-- RIGHT: side information / tools -->
+    <aside>
+      <div class="card">
+        <div class="section-title">Quick decision helper</div>
+        <div class="muted">Enter pH and click "Get pH Care Plan"</div>
+        <div style="margin-top:10px; display:flex; gap:8px">
+          <button id="toNeutralBtn" class="secondary">Neutralize: Step-by-step</button>
+          <button id="saveNoteBtn" class="secondary no-print">Save note</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="section-title">Simple guidance (at-a-glance)</div>
+          <div style="padding:8px">
+            <div><strong class="small">pH 6.5–8.5:</strong> Normal — monitor</div>
+            <div><strong class="small">pH 5.5–6.4:</strong> Mildly acidic — conservative action</div>
+            <div><strong class="small">pH 4.5–5.4:</strong> Moderately acidic — treat sample, avoid use</div>
+            <div><strong class="small">pH &lt; 4.5:</strong> Highly acidic — urgent professional action</div>
+            <div style="height:8px"></div>
+            <div><strong class="small">pH 8.6–9.5:</strong> Mildly alkaline — consider dilution</div>
+            <div><strong class="small">pH 9.6–11:</strong> Moderate alkaline — peat/acid treatment</div>
+            <div><strong class="small">pH &gt; 11:</strong> Very alkaline — urgent professional action</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="section-title">Field kit checklist</div>
+          <ul>
+            <li>Calibrated pH meter / fresh indicator strips</li>
+            <li>Small sample bottles & labels</li>
+            <li>Gloves, goggles, measuring spoons (1/8 tsp), graduated cylinder</li>
+            <li>Small quantities: baking soda, citric acid (food grade), distilled water</li>
+            <li>Notebook (or use the website to record readings)</li>
+          </ul>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="section-title">Contact & escalation</div>
+          <div class="muted">If you suspect industrial discharge or fish kills, immediately contact your local environmental protection office — provide sample time, GPS, photos, and this report.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="section-title">Research links (authoritative)</div>
+        <div class="resources">
+          <a href="https://www.epa.gov/caddis/ph" target="_blank">EPA overview — pH & aquatic life</a><br/>
+          <a href="https://www.who.int/publications/i/item/9789240045064" target="_blank">WHO drinking-water guidelines</a><br/>
+          <a href="https://www.usgs.gov/water-science-school/science/ph-and-water" target="_blank">USGS pH basics</a><br/>
+          <a href="https://www.watertreatmentguide.com/calcite_neutralization.htm" target="_blank">Calcite neutralization</a>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="small">Smart River Health — pH Care Guide • Built by AquaGuard Innovators • Sources: WHO, EPA, USGS, WaterTreatmentGuide</div>
+  </footer>
+
+  <script>
+    // Interactive behaviour for the page
+    const phInput = document.getElementById('phInput');
+    const tempInput = document.getElementById('tempInput');
+    const volumeInput = document.getElementById('volumeInput');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const quickBtn = document.getElementById('quickBtn');
+    const resultBlock = document.getElementById('resultBlock');
+    const phResult = document.getElementById('phResult');
+    const adviceBlock = document.getElementById('adviceBlock');
+    const planContent = document.getElementById('planContent');
+    const toNeutralBtn = document.getElementById('toNeutralBtn');
+    const saveNoteBtn = document.getElementById('saveNoteBtn');
+
+    // Utility function: classify pH
+    function classifyPH(pH){
+      if (pH >= 6.5 && pH <= 8.5) return {cat:'normal', label:'Neutral / Good'};
+      if (pH >= 5.5 && pH < 6.5) return {cat:'slight-acid', label:'Slightly Acidic'};
+      if (pH >= 4.5 && pH < 5.5) return {cat:'moderate-acid', label:'Moderately Acidic'};
+      if (pH < 4.5) return {cat:'severe-acid', label:'Severely Acidic'};
+      if (pH > 8.5 && pH <= 9.5) return {cat:'slight-alk', label:'Slightly Alkaline'};
+      if (pH > 9.5 && pH <= 11) return {cat:'moderate-alk', label:'Moderately Alkaline'};
+      if (pH > 11) return {cat:'severe-alk', label:'Severely Alkaline'};
+      return {cat:'unknown', label:'Unknown'};
+    }
+
+    function buildPlan(pH, temp, vol){
+      // Safety intro
+      let plan = '<strong>Summary:</strong> measured pH = <b>' + pH.toFixed(2) + '</b>';
+      plan += (temp ? ', temperature = ' + temp.toFixed(1) + '°C.' : '.');
+      plan += '<br/><br/>';
+
+      const cls = classifyPH(pH);
+
+      if (cls.cat === 'normal'){
+        plan += '<div><strong style="color:green">No action required.</strong> Water pH is within the recommended range (6.5–8.5). Monitor every 1–3 months.</div>';
+        plan += '<ul><li>Record reading, date and location.</li><li>If you observe unusual changes (dead fish, smells), retest and escalate.</li></ul>';
+        return plan;
+      }
+
+      // Acidic plans
+      if (cls.cat.includes('acid')){
+        plan += '<h4 style="margin-top:8px">Acidic water plan</h4>';
+        plan += '<ol>';
+        // immediate: isolate & test
+        plan += '<li><strong>Isolate & label sample.</strong> Do not use for drinking or washing until treated.</li>';
+        // small sample titration
+        plan += '<li><strong>Titration test (safe starter):</strong> Use a 1 L test container. Add 1/8 tsp (~0.6 g) baking soda, stir, wait 1 min, re-test <em>— repeat</em>. Keep a log of additions and pH changes.</li>';
+        // calcite for larger volumes
+        plan += '<li><strong>For larger volumes or continuous flow:</strong> consider a calcite/limestone neutralizer or crushed limestone contact bed. These systems slowly dissolve calcium carbonate to raise pH safely (widely used for acidic water remediation). See resources below for designs and vendors.</li>';
+        // plant-based long-term
+        plan += '<li><strong>Long-term ecological fixes:</strong> restore riparian vegetation, reduce acid runoff sources (grazing, mining drainage), and install buffer strips.</li>';
+        // escalation
+        plan += '<li><strong>If pH &lt; 4.5 or fish kills are observed:</strong> collect samples, photograph the area, and contact local environmental authority immediately. Avoid adding strong bases in the river.</li>';
+        plan += '</ol>';
+      }
+
+      // Alkaline plans
+      if (cls.cat.includes('alk')){
+        plan += '<h4 style="margin-top:8px">Alkaline water plan</h4>';
+        plan += '<ol>';
+        plan += '<li><strong>Do not use for drinking or irrigation</strong until tested/treated if pH is high.</li>';
+        plan += '<li><strong>Dilution:</strong> if safe, dilute with low-alkalinity water (e.g. collected rainwater or distilled water) in a controlled container and re-test. Do this slowly.</li>';
+        plan += '<li><strong>Peat or organic media:</strong> passing the water through peat moss beds or organic filters can gently lower pH over time.</li>';
+        plan += '<li><strong>Citric acid (small volumes only):</strong> use food-grade citric acid solutions in tiny measured doses for sample/pond-scale correction; add slowly and re-test. Avoid using concentrated acids in natural systems.</li>';
+        plan += '<li><strong>If pH &gt; 11 or sudden fish deaths:</strong> stop and notify local authorities for laboratory analysis.</li>';
+        plan += '</ol>';
+      }
+
+      // universal tips
+      plan += '<div style="margin-top:8px"><strong>Record keeping:</strong> whether you do small corrections or large fixes, keep records of pH before/after, amount added, and time to reach equilibrium.</div>';
+
+      // give volume-aware hint
+      if (vol && vol > 0){
+        plan += '<div style="margin-top:8px"><strong>Volume note:</strong> You entered ' + vol + ' L. Use titration on 1 L first and scale proportionally. Re-test often — scaling may not be exactly linear due to buffering.</div>';
+      } else {
+        plan += '<div style="margin-top:8px"><strong>Volume tip:</strong> enter an estimated volume to get scaling hints (experimental method only).</div>';
+      }
+
+      return plan;
+    }
+
+    function buildAdviceText(pH){
+      const cls = classifyPH(pH);
+      if (cls.cat === 'normal') return "pH is within the healthy range (6.5–8.5). Keep monitoring monthly and protect the catchment area. If you notice sudden changes, retest and report.";
+      if (cls.cat === 'slight-acid') return "Slightly acidic — safe for some aquatic life but take preventive steps: test alkalinity, consider small-scale baking soda titration, and monitor for trends. Plant riparian buffers.";
+      if (cls.cat === 'moderate-acid') return "Moderately acidic — avoid usage for drinking and irrigation. Do small-scale neutralization tests; consider calcite neutralizer for larger systems. Notify community groups.";
+      if (cls.cat === 'severe-acid') return "Severely acidic — high risk to life and infrastructure. Do not use. Collect sample, photograph, and notify local environmental authority immediately.";
+      if (cls.cat === 'slight-alk') return "Slightly alkaline — often manageable via dilution or peat-filtering. Avoid sudden chemical actions; retest after dilution.";
+      if (cls.cat === 'moderate-alk') return "Moderately alkaline — reduce alkalinity by mixing with low-mineral water and consider peat or organic filtration. Avoid using strong acids.";
+      if (cls.cat === 'severe-alk') return "Severely alkaline — dangerous for ecosystems and humans. Stop use and notify authorities; professional lab testing required.";
+      return "Unknown condition — please re-check your measurement device and re-test.";
+    }
+
+    // Click handler
+    analyzeBtn.addEventListener('click', ()=>{
+      const ph = parseFloat(phInput.value);
+      const temp = Number(tempInput.value) || null;
+      const vol = Number(volumeInput.value) || null;
+      if (isNaN(ph)) { alert('Please enter a valid pH value (0.0 - 14.0).'); phInput.focus(); return; }
+      // show result
+      resultBlock.style.display = 'block';
+      phResult.textContent = 'pH ' + ph.toFixed(2);
+      // advice block short
+      adviceBlock.innerHTML = '<strong>' + classifyPH(ph).label + '</strong><br/>' + buildAdviceText(ph);
+      // plan content full
+      planContent.innerHTML = buildPlan(ph, temp, vol);
+      // highlight color
+      const cls = classifyPH(ph);
+      if (cls.cat === 'normal') { phResult.style.background = '#e6fff1'; phResult.style.color = '#006a3d'; }
+      else if (cls.cat.includes('acid')) { phResult.style.background = '#fff3f0'; phResult.style.color = '#9b1d12'; }
+      else { phResult.style.background = '#fffdf0'; phResult.style.color = '#5b3f00'; }
+      // scroll into view
+      planContent.scrollIntoView({behavior:'smooth'});
+    });
+
+    quickBtn.addEventListener('click', ()=>{
+      // show a concise quick tips popup inside adviceBlock
+      resultBlock.style.display = 'block';
+      phResult.textContent = 'Quick tips';
+      adviceBlock.innerHTML = '<ul><li><b>If pH &lt; 6.5:</b> do small baking soda titration (1/8 tsp per L) and re-test repeatedly.</li><li><b>If pH &gt; 8.5:</b> try dilution with rainwater and peat/organic filter.</li><li><b>Always:</b> protect yourself and collect samples if large-scale pollution suspected.</li></ul>';
+      planContent.innerHTML = '<strong>Quick action</strong><ol><li>Take photo & sample.</li><li>Isolate sample.</li><li>Perform titration on 1 L sample.</li><li>If results severe, contact local authority.</li></ol>';
+      planContent.scrollIntoView({behavior:'smooth'});
+    });
+
+    toNeutralBtn.addEventListener('click', ()=>{
+      // focus and call analyze
+      document.getElementById('phInput').focus();
+    });
+
+    saveNoteBtn.addEventListener('click', ()=>{
+      const ph = phInput.value, temp = tempInput.value, vol = volumeInput.value;
+      const note = {ph, temp, vol, ts:Date.now()};
+      // local save to localStorage
+      const key = 'srh_phcare_notes_v1';
+      let arr = JSON.parse(localStorage.getItem(key) || '[]'); arr.unshift(note);
+      localStorage.setItem(key, JSON.stringify(arr));
+      alert('Saved a note locally (browser storage). You can clear it via browser settings.');
+    });
+
+    // optional: prefill demonstration values (comment out if undesired)
+    // phInput.value = 5.2; tempInput.value = 20; volumeInput.value = 1;
+  </script>
+
+</body>
+</html>
