@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pH Chart | Smart River Health Monitor</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(120deg, #c6ecff, #e0f7ff);
+      margin: 0;
+      padding: 0;
+      color: #033b5b;
+    }
+
+    header {
+      background-color: #0277bd;
+      color: white;
+      padding: 15px 0;
+      text-align: center;
+      font-size: 1.5em;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    nav {
+      background: #01579b;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 10px 0;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 30px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #01579b;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 1em;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #0288d1;
+      color: white;
+    }
+
+    .ph-box {
+      height: 30px;
+      color: white;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background-color: #01579b;
+      color: white;
+      font-size: 0.9em;
+      margin-top: 40px;
+    }
+
+    @media(max-width: 600px) {
+      table { font-size: 0.9em; }
+      .container { width: 95%; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>🌊 Smart River Health Monitoring System</header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="phchart.html">pH Chart</a>
+    <a href="map.html">World Map</a>
+    <a href="details.html">Details</a>
+  </nav>
+
+  <div class="container">
+    <h2>pH Scale & Water Quality Interpretation</h2>
+    <p>The pH scale measures how acidic or basic (alkaline) the water is.  
+    Rivers with pH between <strong>6.5 and 8.5</strong> are considered healthy for most aquatic life.</p>
+
+    <table>
+      <tr>
+        <th>pH Value</th>
+        <th>Color</th>
+        <th>Category</th>
+        <th>Water Condition</th>
+      </tr>
+      <tr>
+        <td>0 - 1</td>
+        <td class="ph-box" style="background-color:#ff0000;">Red</td>
+        <td>Highly Acidic</td>
+        <td>Extremely toxic — life impossible</td>
+      </tr>
+      <tr>
+        <td>2 - 3</td>
+        <td class="ph-box" style="background-color:#ff5500;">Orange</td>
+        <td>Strong Acid</td>
+        <td>Corrosive water — destroys ecosystems</td>
+      </tr>
+      <tr>
+        <td>4 - 5</td>
+        <td class="ph-box" style="background-color:#ff8800;">Amber</td>
+        <td>Moderately Acidic</td>
+        <td>Unstable environment for aquatic life</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td class="ph-box" style="background-color:#ffee00;">Yellow</td>
+        <td>Slightly Acidic</td>
+        <td>Still tolerable for plants and fish</td>
+      </tr>
+      <tr>
+        <td>6.5 - 7.5</td>
+        <td class="ph-box" style="background-color:#00ff00;">Green</td>
+        <td>Neutral / Ideal</td>
+        <td>Excellent water quality — healthy river ecosystem</td>
+      </tr>
+      <tr>
+        <td>8 - 9</td>
+        <td class="ph-box" style="background-color:#00b8ff;">Cyan</td>
+        <td>Slightly Basic</td>
+        <td>Good quality — may support most aquatic life</td>
+      </tr>
+      <tr>
+        <td>10 - 11</td>
+        <td class="ph-box" style="background-color:#0077ff;">Blue</td>
+        <td>Moderately Basic</td>
+        <td>Risky for sensitive species</td>
+      </tr>
+      <tr>
+        <td>12 - 14</td>
+        <td class="ph-box" style="background-color:#4b00ff;">Purple</td>
+        <td>Highly Basic</td>
+        <td>Corrosive alkaline water — harmful for life</td>
+      </tr>
+    </table>
+
+    <p style="margin-top:25px; font-style:italic;">
+      💡 Tip: If your river’s pH is far from neutral (7), it may indicate industrial discharge, acid rain, or contamination.  
+      Regular monitoring helps detect pollution early.
+    </p>
+  </div>
+
+  <footer>
+    © 2025 Smart River Health Project | Created by Sneaky Soul & Team 🌎
+  </footer>
+</body>
+</html>
