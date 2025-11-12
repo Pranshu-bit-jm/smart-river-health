@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Map — Smart River Health</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="brand"><div class="logo">Map</div><div><h1>World Map</h1><div class="tag">Sample readings & locations</div></div></div>
+  <nav class="main-nav"><a href="index.html">Home</a><a href="phchart.html">pH Chart</a><a href="phcare.html">pH Care</a><a href="map.html" class="active">Map</a><a href="details.html">Details</a></nav>
+</header>
+
+<main style="max-width:1100px;margin:20px auto;padding:0 16px">
+  <section class="card">
+    <h2>Sample Site Readings</h2>
+    <div id="mapid" style="height:520px;border-radius:10px"></div>
+    <p class="muted" style="margin-top:12px">Markers show sample river health indices. In future we will allow user submissions to appear here.</p>
+  </section>
+</main>
+
+<footer class="site-footer">© 2025 Smart River Health</footer>
+
+<script>
+const map = L.map('mapid').setView([20,0],2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+
+const samples = [
+  {name:'Ganga (India)', coords:[25.4,83.0], index:72},
+  {name:'Amazon (Brazil)', coords:[-3.4,-60.0], index:85},
+  {name:'Thames (UK)', coords:[51.5,-0.1], index:68},
+  {name:'Nile (Egypt)', coords:[30.0,31.2], index:55},
+  {name:'Yangtze (China)', coords:[31.2,121.5], index:78},
+  {name:'Mississippi (USA)', coords:[35.0,-90.0], index:50}
+];
+
+samples.forEach(s=>{
+  const color = s.index>=80 ? 'green' : s.index>=50 ? 'orange' : 'red';
+  const m = L.circleMarker(s.coords, {radius:8, fillColor:color, color:'#000', weight:0.6, fillOpacity:0.9}).addTo(map);
+  m.bindPopup(`<b>${s.name}</b><br>Index: ${s.index}/100`);
+});
+</script>
+</body>
+</html>
