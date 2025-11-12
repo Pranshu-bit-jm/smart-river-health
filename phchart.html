@@ -1,37 +1,157 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>pH Chart — Smart River Health</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>pH Chart — Smart River Health</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Page-specific tweaks */
+    .gradient-bar {
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(90deg,
+        #4b0082 0%,   /* very acidic - purple/red */
+        #ff3b30 6%,
+        #ff7a00 14%,
+        #ffb300 24%,
+        #ffee58 38%,
+        #b2ff59 46%,
+        #64ffda 58%,
+        #00b0ff 72%,
+        #0077ff 86%,
+        #4b0082 100%);
+      border: 1px solid rgba(2,56,78,0.06);
+      margin-top: 12px;
+      position: relative;
+      box-shadow: 0 8px 20px rgba(2,56,78,0.04);
+    }
+
+    .tick-row { display:flex; justify-content:space-between; margin-top:8px; font-weight:700; color:var(--muted); }
+    .ph-input { display:flex; gap:8px; align-items:center; margin-top:14px; }
+    .ph-input input { width:110px; padding:8px; border-radius:8px; border:1px solid #d9f0f7; }
+    .badge { padding:8px 10px; border-radius:8px; font-weight:700; color:white }
+    .cat-neutral { background:linear-gradient(135deg,#2e7d32,#66bb6a) }
+    .cat-acid { background:linear-gradient(135deg,#ff3b30,#ff7a00) }
+    .cat-alk { background:linear-gradient(135deg,#0077ff,#00b0ff) }
+
+    table.ph-table { width:100%; border-collapse:collapse; margin-top:18px; }
+    table.ph-table th, table.ph-table td { padding:10px; text-align:left; border-bottom:1px dashed rgba(2,56,78,0.04) }
+    table.ph-table th { background:linear-gradient(180deg,#f0fcff,#ffffff); color:var(--teal-700) }
+
+    .note { margin-top:12px; font-size:0.95rem; color:var(--muted) }
+    @media(max-width:720px){ .tick-row{font-size:0.85rem} .ph-input{flex-direction:column;align-items:flex-start} }
+  </style>
 </head>
 <body>
-<header class="site-header">
-  <div class="brand"><div class="logo">PH</div><div><h1>pH Reference Chart</h1><div class="tag">Understand acidity & alkalinity</div></div></div>
-  <nav class="main-nav"><a href="index.html">Home</a><a href="phchart.html" class="active">pH Chart</a><a href="phcare.html">pH Care</a><a href="map.html">Map</a><a href="details.html">Details</a></nav>
-</header>
 
-<main style="max-width:1100px;margin:20px auto;padding:0 16px">
-  <section class="card">
-    <h2>pH Scale (0–14) & Interpretation</h2>
-    <p class="muted">Ideal range for most rivers and aquatic life: <strong>6.5–8.5</strong>. Below 6.5 is acidic; above 8.5 is alkaline.</p>
+  <header class="site-header">
+    <div class="brand"><div class="logo">PH</div><div>
+      <h1>pH Reference & Interactive Chart</h1>
+      <div class="tag">Understand acidity, alkalinity & what each reading means</div>
+    </div></div>
 
-    <table style="width:100%;border-collapse:collapse;margin-top:12px">
-      <thead><tr style="background:#f0fcff"><th style="padding:10px">Range</th><th>Meaning</th><th>Impact</th></tr></thead>
-      <tbody>
-        <tr><td style="padding:10px">0–3</td><td>Very acidic</td><td>Highly toxic - emergency</td></tr>
-        <tr><td style="padding:10px">4–5</td><td>Acidic</td><td>Harmful to many species</td></tr>
-        <tr><td style="padding:10px">6–6.4</td><td>Slightly acidic</td><td>Some sensitive species stressed</td></tr>
-        <tr><td style="padding:10px">6.5–8.5</td><td>Neutral / Ideal</td><td>Good for most life</td></tr>
-        <tr><td style="padding:10px">8.6–9.5</td><td>Slightly alkaline</td><td>Minor effects</td></tr>
-        <tr><td style="padding:10px">>9.5</td><td>Alkaline</td><td>Can be harmful to fauna and plant life</td></tr>
-      </tbody>
-    </table>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="phchart.html" class="active">pH Chart</a>
+      <a href="phcare.html">pH Care</a>
+      <a href="map.html">World Map</a>
+      <a href="details.html">Details</a>
+    </nav>
+  </header>
 
-    <p style="margin-top:14px" class="muted">Use calibrated meters for precise readings — strips provide approximation only.</p>
-  </section>
-</main>
+  <main style="max-width:1100px;margin:20px auto;padding:0 16px">
+    <section class="card">
+      <h2>What the pH scale means</h2>
+      <p class="muted">pH measures how acidic or basic water is. The neutral point is <strong>7.0</strong>. For most rivers and lakes we use a practical healthy range: <strong>6.5 – 8.5</strong>. Values far outside this range can harm aquatic life or indicate pollution.</p>
 
-<footer class="site-footer">© 2025 Smart River Health</footer>
+      <div class="gradient-bar" id="gradientBar" aria-hidden="true"></div>
+      <div class="tick-row">
+        <span>0</span><span>2</span><span>4</span><span>6</span><span>7</span><span>8</span><span>10</span><span>12</span><span>14</span>
+      </div>
+
+      <div class="ph-input">
+        <label for="phVal" style="font-weight:700">Try a pH value:</label>
+        <input id="phVal" type="number" step="0.1" min="0" max="14" placeholder="e.g. 7.2">
+        <button id="checkBtn" class="btn">Check</button>
+        <div id="catBadge" style="margin-left:8px"></div>
+      </div>
+
+      <div id="phInfo" style="margin-top:14px;display:none">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div id="phLarge" style="font-size:1.8rem;font-weight:800;color:var(--teal-700)">pH 7.0</div>
+          <div id="phCategory" class="badge cat-neutral">Neutral</div>
+        </div>
+        <div class="note" id="phAdvice">Advice will appear here.</div>
+      </div>
+
+      <h3 style="margin-top:18px">pH Ranges & Practical Impact</h3>
+      <table class="ph-table">
+        <thead><tr><th>Range</th><th>Label</th><th>Practical impact</th></tr></thead>
+        <tbody>
+          <tr><td>0 – 3</td><td>Very acidic</td><td>Highly corrosive; toxic to nearly all aquatic life. Immediate attention required.</td></tr>
+          <tr><td>4 – 5</td><td>Acidic</td><td>Harmful to many freshwater species; increases metal solubility (lead, copper).</td></tr>
+          <tr><td>5.5 – 6.4</td><td>Slightly acidic</td><td>May stress sensitive species; consider monitoring and buffers.</td></tr>
+          <tr><td>6.5 – 8.5</td><td>Neutral / Healthy</td><td>Suitable for most aquatic life and safe for recreational contact with normal precautions.</td></tr>
+          <tr><td>8.6 – 9.5</td><td>Slightly alkaline</td><td>Minor effects; watch for ammonia toxicity in warm water.</td></tr>
+          <tr><td>9.6 – 11</td><td>Alkaline</td><td>Can harm fish and plants; consider filtration or dilution methods.</td></tr>
+          <tr><td>11 – 14</td><td>Very alkaline</td><td>Corrosive and hazardous; avoid contact and notify authorities if found in the field.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:18px">Quick tips</h3>
+      <ul class="muted">
+        <li>Always use a calibrated meter or fresh test strips for accuracy.</li>
+        <li>Record temperature with your pH reading — pH is temperature-sensitive.</li>
+        <li>If pH is outside safe bounds (<6 or >9), avoid using the water and retest or send sample to a lab.</li>
+        <li>Small sample neutralization can be attempted (see pH Care page) — never treat large rivers without authority approval.</li>
+      </ul>
+
+      <div style="margin-top:18px" class="muted">Sources: WHO drinking water guidelines; US EPA & USGS educational pages on pH and aquatic ecosystems.</div>
+    </section>
+  </main>
+
+  <footer class="site-footer">© 2025 Smart River Health</footer>
+
+  <script>
+    // Interactive pH check tool
+    const phVal = document.getElementById('phVal');
+    const checkBtn = document.getElementById('checkBtn');
+    const phInfo = document.getElementById('phInfo');
+    const phLarge = document.getElementById('phLarge');
+    const phCategory = document.getElementById('phCategory');
+    const phAdvice = document.getElementById('phAdvice');
+    const catBadge = document.getElementById('catBadge');
+
+    function classify(pH){
+      if (pH >= 6.5 && pH <= 8.5) return {label:'Neutral', cls:'cat-neutral', advice:'Good range for most aquatic life. Continue regular monitoring.'};
+      if (pH >= 5.5 && pH < 6.5) return {label:'Slightly acidic', cls:'cat-acid', advice:'Slight stress possible for sensitive species. Consider preventive buffering.'};
+      if (pH >= 4.5 && pH < 5.5) return {label:'Moderately acidic', cls:'cat-acid', advice:'Avoid use; perform small-sample neutralization and assess upstream sources.'};
+      if (pH < 4.5) return {label:'Highly acidic', cls:'cat-acid', advice:'Dangerous levels — avoid contact and contact environmental authority.'};
+      if (pH > 8.5 && pH <= 9.5) return {label:'Slightly alkaline', cls:'cat-alk', advice:'May cause mineral issues; dilution or peat filters can help.'};
+      if (pH > 9.5 && pH <= 11) return {label:'Moderately alkaline', cls:'cat-alk', advice:'Avoid use for irrigation and mixing; consider treatment.'};
+      if (pH > 11) return {label:'Highly alkaline', cls:'cat-alk', advice:'Hazardous — get professional testing and avoid exposure.'};
+      return {label:'Unknown', cls:'', advice:'Check reading and calibration.'};
+    }
+
+    checkBtn.addEventListener('click', ()=>{
+      const v = parseFloat(phVal.value);
+      if (isNaN(v) || v < 0 || v > 14){ alert('Enter a pH value between 0 and 14'); phVal.focus(); return; }
+      const res = classify(v);
+      phInfo.style.display = 'block';
+      phLarge.textContent = 'pH ' + v.toFixed(2);
+      phCategory.textContent = res.label;
+      phCategory.className = 'badge ' + res.cls;
+      phAdvice.textContent = res.advice;
+      // small badge for nav row
+      catBadge.innerHTML = `<span class="badge ${res.cls}" style="font-size:0.95rem">${res.label}</span>`;
+      // scroll to result
+      phInfo.scrollIntoView({behavior:'smooth'});
+    });
+
+    // allow Enter to trigger
+    phVal.addEventListener('keyup', (e)=>{ if (e.key === 'Enter') checkBtn.click(); });
+  </script>
+
 </body>
 </html>
