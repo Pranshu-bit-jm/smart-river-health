@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>pH Care — Water Health & Index</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Comprehensive pH care, detection, and remediation guide for Water Health & Index — practical, scientific, and field-ready." />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+  /* ===================================================================
+     pH CARE — Water Health & Index
+     Ultra-detailed single-file page: styles + UI + interactivity
+     =================================================================== */
+
+  :root{
+    --bg1: #e8fbff;
+    --primary: #0093E9;
+    --accent: #00b4d8;
+    --teal: #0192b6;
+    --deep: #06343a;
+    --card: #ffffff;
+    --muted: #375a5e;
+    --radius: 14px;
+    --glass: rgba(255,255,255,0.10);
+    --shadow: 0 14px 40px rgba(2,60,80,0.12);
+    --maxw: 1200px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:"Poppins",system-ui,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,var(--primary),var(--accent));color:var(--deep);-webkit-font-smoothing:antialiased}
+  a{color:var(--primary);text-decoration:none}
+  header.site-header{
+    max-width:var(--maxw);margin:18px auto;padding:18px;display:flex;align-items:center;justify-content:space-between;color:white;
+  }
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:60px;height:60px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--primary));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px;box-shadow:0 12px 40px rgba(0,0,0,0.18)}
+  .title{font-weight:800;font-size:1.05rem}
+  nav.site-nav{display:flex;gap:12px;align-items:center}
+  nav.site-nav a{color:white;padding:8px 10px;border-radius:8px;font-weight:700}
+  nav.site-nav a.active{box-shadow:0 8px 20px rgba(0,0,0,0.12)}
+  .page{max-width:var(--maxw);margin:22px auto;padding:0 18px}
+  .hero{
+    background:linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+    border-radius:16px;padding:26px;box-shadow:var(--shadow);display:flex;gap:20px;align-items:center;
+  }
+  .hero-left{flex:1}
+  .hero-right{width:330px}
+  .hero h1{color:#012430;font-size:1.6rem;margin-bottom:8px}
+  .hero p{color:var(--muted);line-height:1.5}
+  .glass-card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 8px 20px rgba(2,60,80,0.06);}
+
+  /* layout */
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:20px}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+  .section{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 8px 30px rgba(2,60,80,0.06)}
+  h2{color:var(--primary);margin-bottom:8px}
+  h3{margin-top:14px;color:var(--teal)}
+  p{color:var(--muted);line-height:1.55}
+  .muted{color:var(--muted);font-size:0.95rem}
+
+  /* anchor nav */
+  .anchor-nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .anchor-nav a{background:#f5fbff;padding:8px 12px;border-radius:10px;color:var(--teal);font-weight:700;border:1px solid rgba(0,0,0,0.04)}
+
+  /* expandable cards */
+  .exp {
+    border-left: 4px solid rgba(1,147,233,0.12);
+    padding:12px;border-radius:8px;margin-top:10px;
+  }
+  .exp summary{cursor:pointer;font-weight:700;color:var(--teal);outline:none}
+  .exp p{margin-top:8px;color:var(--muted)}
+
+  /* code / steps */
+  pre{background:#f6fbff;padding:12px;border-radius:8px;overflow:auto;border:1px solid #eef8ff}
+  .step{background:#f7fffb;border-left:4px solid var(--primary);padding:10px;border-radius:8px;margin-top:10px}
+  .btn{background:linear-gradient(90deg,var(--primary),var(--accent));color:white;padding:8px 12px;border-radius:10px;border:none;font-weight:800;cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid rgba(2,60,80,0.06);color:var(--muted)}
+  .kbd{background:#f0f8ff;padding:6px 8px;border-radius:6px;border:1px solid #e6f7ff;font-weight:700;color:var(--teal)}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:700px){.two-col{grid-template-columns:1fr}}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th,td{padding:10px;border-bottom:1px dashed rgba(2,60,80,0.04);text-align:left;color:var(--muted)}
+  th{color:var(--deep);font-weight:700}
+
+  /* advisory callout */
+  .callout{background:linear-gradient(90deg,#e8faff,#f6fff8);border-left:6px solid var(--teal);padding:14px;border-radius:8px;margin-top:12px}
+  .danger{background:linear-gradient(90deg,#fff1f0,#fff3f0);border-left:6px solid #c62828}
+
+  /* footer */
+  footer.site-footer{max-width:var(--maxw);margin:22px auto;padding:18px;text-align:center;color:white}
+
+  /* long-form typographic niceties */
+  .lead{font-weight:600;font-size:1.02rem;color:var(--muted)}
+  .big{font-size:1.18rem;font-weight:800;color:var(--deep)}
+  .spaced{margin-top:10px}
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">pH</div>
+      <div>
+        <div class="title">Water Health & Index</div>
+        <div style="font-size:12px;opacity:0.95">Comprehensive pH care resource</div>
+      </div>
+    </div>
+
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="map.html">Map</a>
+      <a href="phchart.html">pH Chart</a>
+      <a href="phcare.html" class="active">pH Care</a>
+      <a href="details.html">Details</a>
+    </nav>
+  </header>
+
+  <!-- Page -->
+  <main class="page">
+    <div class="hero">
+      <div class="hero-left">
+        <h1>pH Care — Complete Field & Lab Guide</h1>
+        <p class="lead">A deep, practical manual for detecting pH problems, restoring balance, and maintaining healthy water systems — suitable for community monitoring, schools, NGOs, and field teams.</p>
+
+        <div class="anchor-nav spaced" id="anchors">
+          <a href="#overview">Overview</a>
+          <a href="#detect">Detect & Measure</a>
+          <a href="#acidic">Acidic Fixes</a>
+          <a href="#alkaline">Alkaline Fixes</a>
+          <a href="#stabilize">Stabilize Neutral</a>
+          <a href="#advanced">Advanced Tools</a>
+          <a href="#safety">Safety</a>
+          <a href="#case">Case Studies</a>
+        </div>
+      </div>
+
+      <div class="hero-right glass-card">
+        <div class="big">Key actions</div>
+        <ul style="margin-top:10px">
+          <li class="muted">Test consistently — same time, same method.</li>
+          <li class="muted">Calibrate camera / meters before use.</li>
+          <li class="muted">Record & geotag readings for trend analysis.</li>
+        </ul>
+        <div style="margin-top:12px">
+          <button class="btn" onclick="window.location.href='index.html'">Open Camera / Analyze</button>
+          <button class="btn ghost" style="margin-left:8px" onclick="window.location.href='map.html'">View Map</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:18px">
+      <!-- MAIN CONTENT -->
+      <section>
+
+        <!-- Overview -->
+        <article id="overview" class="section">
+          <h2>Overview — Why pH matters</h2>
+          <p class="muted">
+            pH measures hydrogen ion concentration and determines acidity or alkalinity. For natural waters, pH influences:
+          </p>
+          <ul>
+            <li><strong>Biology:</strong> fish, invertebrates, and microorganisms have narrow pH tolerances.</li>
+            <li><strong>Chemistry:</strong> pH controls solubility of metals (lead, copper) and nutrient availability.</li>
+            <li><strong>Public health:</strong> extreme pH levels can cause irritation or indicate pollution.</li>
+          </ul>
+
+          <div class="callout spaced">
+            <div style="font-weight:800">Field takeaway:</div>
+            <div class="muted">Even small sustained deviations (±0.5 pH) can change ecosystem behavior. Use repeated readings to confirm a trend before large interventions.</div>
+          </div>
+
+          <h3 class="spaced">pH scale quick reference</h3>
+          <table>
+            <thead><tr><th>Range</th><th>Label</th><th>Typical impact</th></tr></thead>
+            <tbody>
+              <tr><td>0–3</td><td>Very acidic</td><td>Highly corrosive; acute toxicity to organisms</td></tr>
+              <tr><td>4–5.5</td><td>Acidic</td><td>Leaching of metals; sensitive species affected</td></tr>
+              <tr><td>6.5–8.5</td><td>Neutral / Healthy</td><td>Safe for most freshwater ecosystems</td></tr>
+              <tr><td>9–11</td><td>Alkaline</td><td>Scaling; reduced disinfection efficiency</td></tr>
+              <tr><td>12–14</td><td>Very alkaline</td><td>Caustic; hazardous to life and infrastructure</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <!-- Detect & Measure -->
+        <article id="detect" class="section spaced">
+          <h2>Detect & Measure — How to get reliable pH readings</h2>
+          <p class="muted">Accurate measurement is the foundation of correct action. Poor measurement leads to wrong remediation, which can worsen the problem.</p>
+
+          <div class="two-col spaced">
+            <div>
+              <h3>Manual strips</h3>
+              <p class="muted">Advantages: cheap, portable. Disadvantages: color reading subjectivity, limited precision (±0.5–1 pH).</p>
+              <ul>
+                <li>Use fresh, unexpired strips from reputable brands.</li>
+                <li>Dip the strip for the exact time indicated, rinse excess, and compare on a white background under neutral white light.</li>
+                <li>Record the exact color and timestamp; take three strips and average when possible.</li>
+                <li>Temperature matters — many strips assume ~20–25°C. Note temperature alongside pH.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Digital meters</h3>
+              <p class="muted">Advantages: high precision (±0.01–0.1 pH), faster. Disadvantages: cost, need for calibration and maintenance.</p>
+              <ul>
+                <li>Calibrate daily (or before field use) using two-point calibration (pH 4.01 & 7.00) ideally.</li>
+                <li>Store electrodes in proper storage solutions — never let them dry out.</li>
+                <li>Rinse electrode with distilled water between samples and gently blot (no wiping).</li>
+                <li>Temperature compensation: modern meters include this — enable automatic temperature compensation when available.</li>
+              </ul>
+            </div>
+          </div>
+
+          <h3 class="spaced">Camera-based reading (strip color detection)</h3>
+          <p class="muted">Your site’s camera tool estimates pH by reading strip color. To maximize accuracy:</p>
+          <ul>
+            <li><strong>Calibrate on-site:</strong> capture reference colors from a set of known pH strips (store in the calibration panel).</li>
+            <li><strong>Neutral lighting:</strong> use daylight or a neutral white LED. Avoid colored bulbs and heavy shade.</li>
+            <li><strong>Stable positioning:</strong> keep the strip stationary in the camera overlay; avoid reflection and wet-drop glare.</li>
+            <li><strong>Multiple captures:</strong> take 3–5 captures and average the RGB → pH estimate.</li>
+          </ul>
+
+          <details class="exp">
+            <summary>Advanced color-to-pH tips (for developers / curious users)</summary>
+            <p>
+              Use Lab color space (CIELab) and Delta-E 2000 distance for more perceptually accurate matching.
+              When calibrating, capture multiple lighting conditions and store the illuminant metadata. Use weighted inverse-distance interpolation between nearest calibration points for smooth estimates.
+            </p>
+          </details>
+
+          <h3 class="spaced">Recording best-practices</h3>
+          <ol class="muted">
+            <li>Record: timestamp, pH, temperature, turbidity, device (strip/camera/meter), and location.</li>
+            <li>Repeat measurements: take 3 readings and note the mean ± SD.</li>
+            <li>Context: note recent rainfall, upstream activity, odors, visible foam, or discoloration.</li>
+            <li>Label samples if you plan to send to a lab for confirmatory analysis.</li>
+          </ol>
+        </article>
+
+        <!-- Acidic section -->
+        <article id="acidic" class="section spaced">
+          <h2>Acidic water — diagnosis & remediation (pH &lt; 6.5)</h2>
+          <p class="muted">Common causes: acid rain, mining/industrial runoff, peat soil drainage, CO₂ enrichment, decomposing organic matter, or sewage.</p>
+
+          <h3>Impacts (short and long term)</h3>
+          <ul>
+            <li><strong>Immediate:</strong> fish stress, decreased survival of eggs/larvae, irritation in humans on contact.</li>
+            <li><strong>Chemical:</strong> increased solubility of toxic metals (aluminum, lead, copper), raising toxicity.</li>
+            <li><strong>Infrastructure:</strong> accelerated corrosion of pipes and structures.</li>
+          </ul>
+
+          <h3>Step-by-step remediation (small-scale / household)</h3>
+          <div class="step">
+            <strong>1) Confirm the problem:</strong> take 3 readings with different methods or times of day; send one sample to a certified lab if possible.
+          </div>
+          <div class="step">
+            <strong>2) Safe neutralization (small volumes):</strong>
+            <ol>
+              <li>Prepare a dilute sodium bicarbonate (baking soda) solution. Start with 0.25–0.5 g per liter for small containers — add slowly.</li>
+              <li>Stir and measure pH after mixing. Add in small increments and re-test frequently.</li>
+              <li>Always avoid abrupt pH swings — they are as harmful as the initial acidity.</li>
+            </ol>
+          </div>
+          <div class="step">
+            <strong>3) Passive neutralization (ponds/streams):</strong>
+            <ol>
+              <li>Install limestone (calcium carbonate) contact beds where the water passes — water slowly percolates through crushed limestone, increasing pH naturally.</li>
+              <li>Use properly sized beds — oversizing is safer than undersizing; consult a hydrologist for large flows.</li>
+              <li>Combine with vegetative buffer strips to reduce acid runoff.</li>
+            </ol>
+          </div>
+
+          <h3 class="spaced">Chemical neutralization (professional)</h3>
+          <p class="muted">For larger flows or severe cases, chemical dosing is used but must be handled by trained operators:</p>
+          <ul>
+            <li># Lime (Ca(OH)<sub>2</sub>) or quicklime applications in controlled dosing systems</li>
+            <li># Soda ash (Na<sub>2</sub>CO<sub>3</sub>) for pH increases in certain industrial contexts</li>
+            <li>Continuous monitoring is essential — overdosing leads to high alkalinity and secondary problems.</li>
+          </ul>
+
+          <div class="callout spaced">
+            <div style="font-weight:800">Field checklist for acidic events</div>
+            <div class="muted">
+              - Measure pH & temperature at multiple points (upstream, midstream, downstream).<br>
+              - Test for metals (aluminum, lead, copper) if pH &lt; 6.0.<br>
+              - Notify local environmental authority if pH &lt; 5.5 over several samples or if fish kills occur.
+            </div>
+          </div>
+
+          <h3 class="spaced">Preventive actions</h3>
+          <ul>
+            <li>Reduce acid sources (improve waste handling, reduce fertilizer runoff, manage animal waste).</li>
+            <li>Restore vegetation; riparian buffers intercept acidic runoff.</li>
+            <li>Community awareness: discourage burning or dumping that acidifies soil/water.</li>
+          </ul>
+        </article>
+
+        <!-- Alkaline section -->
+        <article id="alkaline" class="section spaced">
+          <h2>Alkaline water — diagnosis & remediation (pH &gt; 8.5)</h2>
+          <p class="muted">Common causes: carbonate-rich geology, detergents or industrial effluents, high algal growth (photosynthesis can raise pH during daytime), or improper dosing.</p>
+
+          <h3>Impacts</h3>
+          <ul>
+            <li>Scaling on infrastructure (calcium carbonate deposition).</li>
+            <li>Reduced efficiency of chlorine disinfection in drinking water.</li>
+            <li>Ammonia becomes more toxic in high pH, especially at higher temperatures.</li>
+          </ul>
+
+          <h3>Small-scale / household fixes</h3>
+          <div class="step">
+            <strong>1) Dilution:</strong> Mix with lower pH water (rainwater or distilled) slowly and retest.
+          </div>
+          <div class="step">
+            <strong>2) Acid dosing (only small, controlled systems):</strong>
+            <ol>
+              <li>Use food-grade citric acid or vinegar for tiny volumes; add dropwise and re-test continuously.</li>
+              <li>For aquariums, use specialist products designed for pH reduction — follow dosing charts carefully.</li>
+            </ol>
+          </div>
+
+          <h3 class="spaced">Large-scale / professional techniques</h3>
+          <ul>
+            <li><strong>CO<sub>2</sub> injection:</strong> dissolving CO<sub>2</sub> forms carbonic acid and lowers pH; common in large aquaculture systems.</li>
+            <li><strong>Ion exchange or reverse osmosis:</strong> remove minerals that contribute to alkalinity.</li>
+            <li><strong>Peat filtration:</strong> temporary acidification via humic acids — used in aquaria/ponds with care.</li>
+          </ul>
+
+          <div class="danger spaced">
+            <div style="font-weight:800">Warning</div>
+            <div class="muted">Never pour concentrated acids into open bodies of water. This can cause localized extreme pH swings and massive ecological damage. Always apply controlled, measured treatments or consult trained professionals.</div>
+          </div>
+
+          <h3 class="spaced">Prevention & management</h3>
+          <ul>
+            <li>Control detergent and soap discharge into drains and streams.</li>
+            <li>Implement industrial pre-treatment before discharge.</li>
+            <li>Educate farmers and households about proper waste management to avoid high-alkalinity runoff.</li>
+          </ul>
+        </article>
+
+        <!-- Stabilize neutral -->
+        <article id="stabilize" class="section spaced">
+          <h2>Stabilizing neutral pH — maintenance & long-term balance</h2>
+          <p class="muted">Maintaining the 6.5–8.5 window avoids most problems. Actions below help keep pH stable seasonally and through weather events.</p>
+
+          <h3>Biological balance</h3>
+          <ul>
+            <li>Introduce or preserve aquatic plants — they buffer chemical swings and stabilize ecosystems.</li>
+            <li>Encourage microbial communities that process organic matter without causing pH swings (balanced nutrient loads).</li>
+            <li>Avoid single-method approaches — combine physical filtration, vegetative buffers, and community waste controls.</li>
+          </ul>
+
+          <h3>Engineering & landscape-scale actions</h3>
+          <ul>
+            <li>Construct wetlands: these act as natural filters and stabilizers for pH and nutrients.</li>
+            <li>Install sediment traps and check-dams to reduce turbidity, which indirectly stabilizes chemical conditions.</li>
+            <li>Manage land use in the catchment to reduce abrupt chemical inputs (e.g., fertilizer pulses).</li>
+          </ul>
+
+          <h3 class="spaced">Routine monitoring plan (recommended)</h3>
+          <ol class="muted">
+            <li>Weekly: pH, temperature, turbidity at a representative site (or more often after events).</li>
+            <li>Monthly: nutrient screen (nitrate, phosphate) and visual inspection for algae or dead zones.</li>
+            <li>After heavy rain or suspected spills: perform daily monitoring until conditions stabilize.</li>
+            <li>Annual: lab-based comprehensive analysis (metals, organics) for a baseline report.</li>
+          </ol>
+        </article>
+
+        <!-- Advanced tools -->
+        <article id="advanced" class="section spaced">
+          <h2>Advanced tools & technical guidance</h2>
+
+          <h3>Calibration & uncertainty</h3>
+          <p class="muted">Every instrument/method has uncertainty. Your job is to quantify it and design interventions that are robust to that uncertainty.</p>
+          <ul>
+            <li>Two-point vs three-point calibration: two-point (pH 4 & 7) is common; three-point (4,7,10) improves accuracy across the pH range.</li>
+            <li>Document calibration logs: time, temperature, standards used, and drift observed.</li>
+            <li>Estimate measurement uncertainty (±) and avoid interventions whose safe dosing interval is smaller than your measurement uncertainty.</li>
+          </ul>
+
+          <h3>Lab-level follow-ups</h3>
+          <p class="muted">If you suspect chemical contamination, send samples to a certified lab for:</p>
+          <ul>
+            <li>Heavy metals (lead, cadmium, chromium, aluminum)</li>
+            <li>Organics (pesticides/herbicides)</li>
+            <li>Biological assays (E. coli, coliforms) if public health risk exists</li>
+          </ul>
+
+          <h3 class="spaced">Data & decision thresholds</h3>
+          <p class="muted">Use threshold-based triggers for action. Example set:</p>
+          <table>
+            <thead><tr><th>Index / pH</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>Index ≥ 85 or pH 6.5–8.2</td><td>Routine monitoring — no action</td></tr>
+              <tr><td>Index 70–84 or pH 6.0–6.4 / 8.3–8.8</td><td>Investigate upstream sources; increase monitoring frequency</td></tr>
+              <tr><td>Index 40–69 or pH &lt;6.0 / &gt;8.8</td><td>Immediate local action; deploy passive neutralizers; consider lab tests</td></tr>
+              <tr><td>Index &lt;40 or pH &lt;5.5 / &gt;10</td><td>Emergency response; restrict activities; alert authorities</td></tr>
+            </tbody>
+          </table>
+
+          <h3 class="spaced">Tools & resources list</h3>
+          <ul>
+            <li>pH meters (brands): Hanna, ThermoScientific, Milwaukee — choose a meter with automatic temperature compensation and replaceable electrodes.</li>
+            <li>Calibration standards: NIST-traceable buffers if possible (pH 4.01, 7.00, 10.01).</li>
+            <li>Field kits: multiparameter probes (pH + EC + temp + DO) for combined context.</li>
+            <li>Data systems: use geo-tagging + time-series plotting to detect trends rather than single samples.</li>
+          </ul>
+        </article>
+
+        <!-- Safety -->
+        <article id="safety" class="section spaced">
+          <h2>Safety, environment, and reporting</h2>
+          <p class="muted">Human health and safety protocols must come first in any remediation attempt.</p>
+
+          <h3>Immediate safety steps</h3>
+          <ul>
+            <li>If pH &lt; 4 or &gt; 11 and people are exposed → avoid contact, do not swim, and notify relevant public health authorities.</li>
+            <li>For visible fish kills: collect samples (if safe), note exact times, and inform environmental agencies; photographs and GPS help investigations.</li>
+            <li>Do not mix unknown chemicals — mixing acids and bases can produce heat and toxic byproducts.</li>
+          </ul>
+
+          <h3>Community engagement</h3>
+          <p class="muted">A scalable approach includes local reporting channels, regular community training, and shared data dashboards. Encourage citizens to submit data with location to the Water Health & Index map.</p>
+
+          <div class="callout spaced">
+            <div style="font-weight:800">Reporting template (copy to use)</div>
+            <pre>Location: [lat, lon] or name
+Timestamp: [ISO time]
+pH: [value]
+Temperature: [°C]
+Turbidity: [low/medium/high]
+Observations: [odors, color, fish kills, foam, etc.]
+Action requested: [sample testing / authority notification]</pre>
+          </div>
+        </article>
+
+        <!-- Case studies -->
+        <article id="case" class="section spaced">
+          <h2>Case studies & success stories</h2>
+          <p class="muted">Real examples are instructive. Below are condensed summaries showing how correct diagnosis + appropriate scale-appropriate action restored water health.</p>
+
+          <h3>1) Urban river recovery (summary)</h3>
+          <p class="muted">Issue: recurrent acidic spikes (pH ~5.2) after storm events due to combined sewer overflows and stained run-off.<br>
+          Actions: emergency buffer deployment (crushed limestone contactors), upstream sewer inspection and repairs, community awareness campaign.<br>
+          Outcome: within 9 months, average pH rose to 6.8–7.3 and fish populations showed recovery indicators.</p>
+
+          <h3>2) Pond alkalinity case (summary)</h3>
+          <p class="muted">Issue: small pond with pH 9.6 due to detergent influx from nearby car wash and nutrient-driven algal cycles.<br>
+          Actions: source control (blocking runoff), phased dilution and aeration, local education.<br>
+          Outcome: pH stabilized at 7.4 within one month; scaling reduced and aquatic plants re-established.</p>
+
+          <div class="muted spaced">If you have a case to add — submit readings and photos on the Map page to build a community archive.</div>
+        </article>
+
+        <!-- Practical quick reference -->
+        <article class="section spaced">
+          <h2>Quick reference: remedies & dosages (field starters)</h2>
+          <p class="muted">The values below are starter guidelines for very small systems (tanks, small ponds). They are <strong>NOT</strong> safe for large or open natural systems without professional support.</p>
+
+          <table>
+            <thead><tr><th>Problem</th><th>Starter field treatment</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>pH 6.0 in 100 L bucket</td><td>Add ~5–10 g baking soda slowly, mix, re-test</td><td>Drip slowly; re-test every 5–10 min</td></tr>
+              <tr><td>pH 5.0 in 100 L</td><td>Start with ~20 g crushed limestone in a permeable bag and flow-through if possible</td><td>Safer than sudden chemical dosing</td></tr>
+              <tr><td>pH 9.5 in 100 L</td><td>Add small amounts (1–3 ml) of 5% citric acid solution incrementally and re-test</td><td>Use dilute acid and extreme caution</td></tr>
+              <tr><td>Turbidity high</td><td>Add settling time, use fine mesh filters, or use coagulant for heavy sediments (professional)</td><td>Coagulants (alum) require lab guidance</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <!-- Tools & calculators -->
+        <article class="section spaced">
+          <h2>Tools & calculators (field)</h2>
+          <p class="muted">We include helper tools on the Home page. Use them for repeatable workflows:</p>
+
+          <div class="two-col spaced">
+            <div class="card">
+              <h3>Calibration checklist</h3>
+              <ol>
+                <li>Bring pH buffer sachets (pH 4, 7, and 10).</li>
+                <li>Rinse electrode with distilled water, blot dry, immerse in buffer 1.</li>
+                <li>Document ambient temperature and buffer lot numbers.</li>
+                <li>Repeat with second buffer and store calibration log.</li>
+              </ol>
+            </div>
+
+            <div class="card">
+              <h3>Sampling checklist</h3>
+              <ol>
+                <li>Label sample bottles with timestamp and GPS coordinate.</li>
+                <li>Collect mid-stream for rivers (away from bank disturbance).</li>
+                <li>Cool and transport to lab within recommended holding time.</li>
+                <li>Document field notes (weather, upstream activity).</li>
+              </ol>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- RIGHT COLUMN: side resources -->
+      <aside>
+        <div class="section">
+          <h3>Quick actions</h3>
+          <div style="margin-top:10px">
+            <button class="btn" onclick="window.location.href='index.html'">Open Camera Reader</button>
+            <button class="btn ghost" style="margin-left:8px" onclick="window.location.href='map.html'">Upload / View Map</button>
+          </div>
+
+          <h3 style="margin-top:12px">Emergency phone script</h3>
+          <div class="muted" style="margin-top:8px">
+            Call your local environmental authority — tell them:
+            <ol>
+              <li>Your name & location</li>
+              <li>Exact pH, temperature, turbidity readings</li>
+              <li>Any observed wildlife impact</li>
+              <li>Time & photos if possible</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="section" style="margin-top:12px">
+          <h3>Reference ranges by use</h3>
+          <table>
+            <thead><tr><th>Use</th><th>Recommended pH</th></tr></thead>
+            <tbody>
+              <tr><td>Drinking water</td><td>6.5–8.5</td></tr>
+              <tr><td>Aquaculture</td><td>6.8–8.2 (species dependent)</td></tr>
+              <tr><td>Irrigation</td><td>6.0–8.4</td></tr>
+              <tr><td>Aquarium (freshwater)</td><td>6.5–7.5 (species dependent)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section" style="margin-top:12px">
+          <h3>Further reading & links</h3>
+          <div class="muted" style="margin-top:8px">
+            <ul>
+              <li><a href="https://www.who.int" target="_blank">WHO — Water quality</a></li>
+              <li><a href="https://www.epa.gov" target="_blank">US EPA — pH & water quality</a></li>
+              <li><a href="https://www.usgs.gov" target="_blank">USGS — water data</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section" style="margin-top:12px">
+          <h3>Project team</h3>
+          <ul class="muted">
+            <li><strong>Pranshu</strong> — Project Lead & UI</li>
+            <li><strong>Shibam Mondal</strong> — Frontend & Data</li>
+            <li><strong>Dipanjan</strong> — Environmental Research</li>
+            <li><strong>Debjoyti</strong> — UX & Documentation</li>
+          </ul>
+        </div>
+
+      </aside>
+    </div>
+
+    <!-- footer note -->
+    <div style="margin-top:18px" class="muted">This page is informational and intended to guide safe, measured action. Large-scale remediation must be performed by trained professionals and authorities. Always follow local regulations.</div>
+
+  </main>
+
+  <footer class="site-footer">© 2025 Water Health & Index — Because every drop deserves balance.</footer>
+
+  <script>
+  /* Interactivity: smooth scroll, anchor highlighting, copy template, small helper functions */
+
+  // Smooth anchor scroll (for all anchor-nav links)
+  document.querySelectorAll('.anchor-nav a').forEach(a => {
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      const id = this.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
+  // Copy reporting template (if any)
+  function copyText(text){
+    navigator.clipboard?.writeText(text).then(()=> alert('Copied to clipboard')).catch(()=> alert('Could not copy'));
+  }
+
+  // Optional hooks for future camera calibration UI or "open in Home with pH"
+  // Example: link from this page to prefill home pH: index.html?ph=7.2
+  // No heavy JS needed now; home page already reads query string in previous code blocks when implemented.
+
+  // small helper: highlight nav active (client-side)
+  try {
+    const navLinks = document.querySelectorAll('nav.site-nav a');
+    navLinks.forEach(l => { if(location.pathname.endsWith('phcare.html') || location.pathname.endsWith('/phcare.html')) { l.classList.remove('active'); } });
+    document.querySelector('nav.site-nav a[href="phcare.html"]').classList.add('active');
+  } catch(e){}
+  </script>
+</body>
+</html>
