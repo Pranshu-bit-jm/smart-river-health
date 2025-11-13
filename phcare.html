@@ -1,229 +1,219 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>pH Care — Smart River Health</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pH Care | Water Health & Index</title>
   <style>
-    /* PH Care page theme */
-    body { background:linear-gradient(180deg,#e6f7fa,#f8ffff); color:#03364d; font-family:'Segoe UI',sans-serif; }
-
-    h1,h2,h3 { color:#02475e; }
-
-    .card { background:white; border-radius:14px; padding:20px 24px; box-shadow:0 8px 24px rgba(0,80,120,0.08); margin-top:24px; }
-
-    .tip-block {
-      border-left:6px solid #00b0ff;
-      padding:12px 16px;
-      border-radius:8px;
-      margin:10px 0;
-      background:#f0fcff;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
     }
 
-    .acidic { border-left-color:#ff7043; background:#fff5f0; }
-    .alkaline { border-left-color:#0077ff; background:#f0f8ff; }
-    .neutral { border-left-color:#2e7d32; background:#f0fff4; }
-
-    .section-title {
-      border-bottom:2px solid rgba(2,56,78,0.1);
-      padding-bottom:6px;
-      margin-bottom:10px;
-      font-weight:700;
+    body {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    .btn {
-      background:#00a0c6;
-      color:white;
-      border:none;
-      border-radius:8px;
-      padding:10px 18px;
-      font-weight:600;
-      cursor:pointer;
+    header {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
-    .btn:hover { background:#028fb0; }
-
-    .ph-checker {
-      display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px;
+    header h1 {
+      font-size: 1.8rem;
+      letter-spacing: 1px;
     }
 
-    input[type=number] {
-      border:1px solid #cce9f3;
-      border-radius:8px;
-      padding:8px;
-      width:110px;
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 500;
+      transition: color 0.3s ease;
     }
 
-    .result-block {
-      margin-top:16px;
-      border-radius:10px;
-      padding:14px;
-      font-size:1rem;
-      display:none;
+    nav a:hover {
+      color: #222;
     }
 
-    .badge {
-      display:inline-block;
-      padding:6px 10px;
-      color:#fff;
-      border-radius:8px;
-      font-weight:700;
-      margin-left:6px;
+    main {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .acid-badge { background:#ff3b30; }
-    .alk-badge { background:#0077ff; }
-    .neut-badge { background:#2e7d32; }
+    .section {
+      background: rgba(255,255,255,0.9);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 90%;
+      max-width: 900px;
+      margin-bottom: 2rem;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+      animation: fadeIn 1.2s ease;
+    }
 
-    footer { text-align:center; margin-top:40px; color:#777; }
+    .section h2 {
+      color: #0093E9;
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .section p {
+      font-size: 1rem;
+      color: #333;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      margin-left: 1.5rem;
+      list-style: disc;
+      color: #333;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    .ph-type {
+      font-weight: 700;
+      color: #0078ff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .advice-box {
+      background: #f7fbff;
+      border-left: 6px solid #0093E9;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .highlight {
+      color: #0093E9;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      color: #fff;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      font-size: 0.9rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .section { padding: 1.5rem; }
+      header h1 { font-size: 1.4rem; }
+    }
   </style>
 </head>
 <body>
-
-  <header class="site-header">
-    <div class="brand">
-      <div class="logo">PH</div>
-      <div>
-        <h1>pH Care & Treatment Guidance</h1>
-        <div class="tag">Tips to bring your water closer to a healthy balance</div>
-      </div>
-    </div>
-
-    <nav class="main-nav">
+  <header>
+    <h1>Water Health & Index</h1>
+    <nav>
       <a href="index.html">Home</a>
       <a href="phchart.html">pH Chart</a>
-      <a href="phcare.html" class="active">pH Care</a>
+      <a href="phcare.html">pH Care</a>
       <a href="map.html">World Map</a>
       <a href="details.html">Details</a>
     </nav>
   </header>
 
-  <main style="max-width:1100px;margin:24px auto;padding:0 16px">
-    <section class="card">
-      <h2>Check your pH value</h2>
-      <p>Enter your measured pH to get personalized advice for neutralizing or maintaining water balance.</p>
+  <main>
+    <div class="section">
+      <h2>💧 Understanding pH Care</h2>
+      <p>
+        Water pH determines its acidity or alkalinity. A pH of <span class="highlight">7.0</span> is neutral — safe for most aquatic life and human consumption.  
+        Values below 7 indicate acidity, and those above 7 indicate alkalinity.  
+        Proper pH balance ensures healthier ecosystems, safer drinking water, and reduced corrosion in pipes or equipment.
+      </p>
+    </div>
 
-      <div class="ph-checker">
-        <label for="phInput" style="font-weight:700;">pH value:</label>
-        <input type="number" id="phInput" placeholder="e.g. 5.8" step="0.1" min="0" max="14">
-        <button id="phBtn" class="btn">Get Care Advice</button>
+    <div class="section">
+      <h2>🌿 If Your Water is Acidic (pH below 6.5)</h2>
+      <div class="advice-box">
+        <p><strong>Causes:</strong> Industrial runoff, acid rain, or decaying organic matter.</p>
+        <p><strong>Effects:</strong> Corrosion of pipes, leaching of metals, harm to aquatic life.</p>
       </div>
-
-      <div id="phResult" class="result-block"></div>
-    </section>
-
-    <section class="card">
-      <h2>General Neutralization Strategies</h2>
-      <div class="section-title">For Acidic Water (pH below 6.5)</div>
-      <div class="tip-block acidic">
-        <strong>Natural Buffers:</strong> Crushed limestone or marble chips can raise pH safely in small systems.
-      </div>
-      <div class="tip-block acidic">
-        <strong>Household-scale:</strong> Use baking soda (sodium bicarbonate) in very small controlled amounts for small containers.
-      </div>
-      <div class="tip-block acidic">
-        <strong>Environmental:</strong> Avoid chemical fertilizers and acid rain sources upstream.
-      </div>
-
-      <div class="section-title" style="margin-top:16px;">For Alkaline Water (pH above 8.5)</div>
-      <div class="tip-block alkaline">
-        <strong>Natural Reducers:</strong> Add peat moss, driftwood, or CO₂ infusion for aquariums and small samples.
-      </div>
-      <div class="tip-block alkaline">
-        <strong>Industrial:</strong> Dilute with neutral rainwater or distilled water; avoid strong acids unless under supervision.
-      </div>
-      <div class="tip-block alkaline">
-        <strong>Environmental:</strong> Minimize lime leaching and monitor runoff from cemented surfaces.
-      </div>
-
-      <div class="section-title" style="margin-top:16px;">If Water Is Neutral (pH 6.5 – 8.5)</div>
-      <div class="tip-block neutral">
-        <strong>Maintain Balance:</strong> Avoid contaminant introduction and monitor monthly.
-      </div>
-      <div class="tip-block neutral">
-        <strong>Support Aquatic Life:</strong> Plant native aquatic vegetation and avoid sudden nutrient spikes.
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>Safety Notes</h2>
-      <ul style="color:#02556b;">
-        <li>Do not pour strong acids/bases into open waterways.</li>
-        <li>Always handle treatment materials with gloves and goggles.</li>
-        <li>For community-scale corrections, seek environmental agency approval.</li>
-        <li>Track both <strong>pH</strong> and <strong>temperature</strong> since both affect aquatic chemistry.</li>
+      <p><span class="ph-type">Recommended Care:</span></p>
+      <ul>
+        <li>Add <span class="highlight">limestone chips</span> or crushed marble to raise pH naturally.</li>
+        <li>Use a <span class="highlight">neutralizing filter</span> for home water systems.</li>
+        <li>Test water after rainfall — acidity often spikes after storms.</li>
+        <li>Plant trees near water sources to buffer acid rain effects.</li>
+        <li>Monitor metal pipes — corrosion is faster in acidic water.</li>
+        <li>Boil acidic water before consumption to remove temporary acidity.</li>
       </ul>
-    </section>
+    </div>
 
-    <section class="card">
-      <h2>Eco Restoration Examples</h2>
-      <p class="muted">Notable global cases where careful pH balance restored ecosystems:</p>
-      <ul class="muted">
-        <li><strong>Scandinavian Lakes Recovery:</strong> Liming operations neutralized acidic rainwater effects in Norway and Sweden.</li>
-        <li><strong>Appalachian Streams:</strong> Controlled limestone dosing helped restore trout populations.</li>
-        <li><strong>Urban Wetlands:</strong> Phytoremediation and pH control improved biodiversity in Singapore’s Marina Catchment.</li>
+    <div class="section">
+      <h2>🌊 If Your Water is Neutral (pH 6.5 – 7.5)</h2>
+      <div class="advice-box">
+        <p><strong>Ideal Condition:</strong> Safe for most uses, balanced ecosystem, minimal chemical reaction risk.</p>
+      </div>
+      <p><span class="ph-type">Recommended Care:</span></p>
+      <ul>
+        <li>Maintain consistent testing — stable doesn’t mean permanent.</li>
+        <li>Use <span class="highlight">natural aeration</span> (like fountains) to maintain oxygen and balance.</li>
+        <li>Avoid adding strong cleaning agents or fertilizers near water sources.</li>
+        <li>Use <span class="highlight">activated carbon filters</span> to keep water neutral.</li>
+        <li>Regularly clean tanks or ponds to avoid algae imbalance.</li>
       </ul>
-    </section>
+    </div>
+
+    <div class="section">
+      <h2>☀️ If Your Water is Basic (pH above 7.5)</h2>
+      <div class="advice-box">
+        <p><strong>Causes:</strong> High mineral content, detergents, or chemical waste discharge.</p>
+        <p><strong>Effects:</strong> Soap scum formation, reduced disinfection, cloudy water.</p>
+      </div>
+      <p><span class="ph-type">Recommended Care:</span></p>
+      <ul>
+        <li>Add <span class="highlight">vinegar or citric acid</span> in small controlled doses for temporary neutralization.</li>
+        <li>Install <span class="highlight">reverse osmosis</span> filters for household use.</li>
+        <li>Check for excess calcium or magnesium — these raise alkalinity.</li>
+        <li>Use <span class="highlight">CO₂ injection</span> in large aquariums or ponds to lower pH safely.</li>
+        <li>Do not store alkaline water in metal containers — scaling may occur.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>🔬 Pro Tips for Long-Term pH Stability</h2>
+      <ul>
+        <li>Always measure pH at the same time daily for consistent data.</li>
+        <li>Record readings weekly — trends matter more than single results.</li>
+        <li>Combine pH, temperature, and turbidity data for full water quality insights.</li>
+        <li>Educate nearby communities about basic pH awareness and safe disposal.</li>
+        <li>Store water samples in glass containers to prevent chemical reactions.</li>
+      </ul>
+    </div>
   </main>
 
-  <footer>© 2025 Smart River Health</footer>
-
-  <script>
-    const phBtn = document.getElementById('phBtn');
-    const phInput = document.getElementById('phInput');
-    const phResult = document.getElementById('phResult');
-
-    const acidicTips = [
-      "Use a small amount of baking soda (0.5g/L) to gently increase pH.",
-      "Crushed oyster shells or limestone chips act as slow natural buffers.",
-      "Avoid acidic runoff from fertilizers or decaying organic matter.",
-      "Re-test every few hours after adding neutralizers."
-    ];
-
-    const neutralTips = [
-      "Excellent range for aquatic life.",
-      "Maintain monitoring; pH can fluctuate after rainfall.",
-      "Keep local vegetation healthy to sustain balance.",
-      "Prevent introduction of soaps, detergents, or salts."
-    ];
-
-    const alkalineTips = [
-      "Use peat moss or driftwood in small tanks to lower pH safely.",
-      "Aeration or CO₂ infusion can help rebalance alkalinity.",
-      "Avoid cement leach or lime-heavy materials in contact with water.",
-      "Re-test after 12–24 hours; do not over-correct."
-    ];
-
-    function getAdvice(pH) {
-      if (pH < 6.5) {
-        return {type:'acidic', label:'Acidic', color:'#ff3b30', tips:acidicTips};
-      } else if (pH > 8.5) {
-        return {type:'alkaline', label:'Alkaline', color:'#0077ff', tips:alkalineTips};
-      } else {
-        return {type:'neutral', label:'Neutral', color:'#2e7d32', tips:neutralTips};
-      }
-    }
-
-    phBtn.addEventListener('click', () => {
-      const val = parseFloat(phInput.value);
-      if (isNaN(val) || val < 0 || val > 14) {
-        alert("Please enter a pH value between 0 and 14");
-        return;
-      }
-      const res = getAdvice(val);
-      phResult.style.display = 'block';
-      phResult.style.borderLeft = '8px solid ' + res.color;
-      phResult.style.background = 'rgba(2,100,150,0.04)';
-      const tipsList = res.tips.map(t => `<li>${t}</li>`).join('');
-      phResult.innerHTML = `
-        <div><strong>pH ${val.toFixed(2)} — <span class="badge ${res.type}-badge">${res.label}</span></strong></div>
-        <ul>${tipsList}</ul>
-      `;
-      phResult.scrollIntoView({behavior:'smooth'});
-    });
-
-    phInput.addEventListener('keyup',(e)=>{ if(e.key==='Enter') phBtn.click(); });
-  </script>
+  <footer>
+    &copy; 2025 Water Health & Index | Designed by Pranshu & Team
+  </footer>
 </body>
 </html>
