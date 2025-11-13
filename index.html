@@ -1,263 +1,217 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Smart River Health — Home</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Water Health & Index</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<!-- Leaflet CSS/JS (map used on separate page) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    body {
+      background: linear-gradient(135deg, #0093E9 0%, #80D0C7 100%);
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-<link rel="stylesheet" href="style.css">
+    header {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
 
+    header h1 {
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #222;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2rem 3rem;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    h2 {
+      color: #0093E9;
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+    }
+
+    label {
+      display: block;
+      margin: 0.8rem 0 0.3rem;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      background: linear-gradient(90deg, #0093E9, #80D0C7);
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #f5fafc;
+      border-radius: 10px;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .score {
+      font-size: 2rem;
+      color: #0093E9;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      color: #fff;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+  </style>
 </head>
 <body>
-<header class="site-header">
-  <div class="brand"><div class="logo">SR</div><div>
-    <h1>Smart River Health</h1>
-    <div class="tag">Citizen water checks • pH • Temperature • Turbidity</div>
-  </div></div>
+  <header>
+    <h1>Water Health & Index</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="phchart.html">pH Chart</a>
+      <a href="phcare.html">pH Care</a>
+      <a href="map.html">World Map</a>
+      <a href="details.html">Details</a>
+    </nav>
+  </header>
 
-  <nav class="main-nav">
-    <a href="index.html" class="active">Home</a>
-    <a href="phchart.html">pH Chart</a>
-    <a href="phcare.html">pH Care</a>
-    <a href="map.html">World Map</a>
-    <a href="details.html">Details</a>
-  </nav>
-</header>
+  <main>
+    <div class="container">
+      <h2>Check Your Water Health</h2>
 
-<main class="layout">
-  <section class="left card">
-    <h2>Enter water readings</h2>
+      <label for="ph">Enter pH Value:</label>
+      <input type="number" id="ph" step="0.1" min="0" max="14" placeholder="e.g., 7.0">
 
-    <label for="ph">pH (0–14)</label>
-    <input id="ph" type="number" step="0.1" min="0" max="14" placeholder="7.2">
+      <label for="temp">Enter Temperature (°C):</label>
+      <input type="number" id="temp" step="0.1" min="0" max="50" placeholder="e.g., 25">
 
-    <label for="temp">Temperature (°C)</label>
-    <input id="temp" type="number" step="0.1" min="-10" max="60" placeholder="25">
+      <label for="turbidity">Select Turbidity:</label>
+      <select id="turbidity">
+        <option value="">-- Select --</option>
+        <option value="low">Low (Clear Water)</option>
+        <option value="medium">Medium (Cloudy)</option>
+        <option value="high">High (Muddy)</option>
+      </select>
 
-    <label for="turb">Turbidity</label>
-    <select id="turb">
-      <option value="">Select turbidity</option>
-      <option value="low">Low — Clear</option>
-      <option value="medium">Medium — Cloudy</option>
-      <option value="high">High — Muddy</option>
-    </select>
+      <button onclick="calculateHealth()">Check Water Health</button>
 
-    <div class="controls-row">
-      <button id="analyze" class="btn primary">Analyze</button>
-      <button id="save" class="btn">Save Reading</button>
-      <button id="clear" class="btn ghost">Clear History</button>
-    </div>
-
-    <div id="result" class="result card-large" aria-live="polite" style="display:none">
-      <div class="score-bubble" id="scoreBubble">100</div>
-      <div class="result-meta">
-        <div class="status-line"><strong id="statusLabel">Status:</strong> <span id="statusWord">Excellent</span> <span id="statusChip" class="chip good">GOOD</span></div>
-        <div id="subscores" class="muted">pH: - • Temp: - • Turbidity: -</div>
-        <div id="advice" class="advice">Advice appears here after analysis.</div>
+      <div class="result" id="result">
+        <p class="score" id="score"></p>
+        <p id="advice"></p>
       </div>
     </div>
+  </main>
 
-    <h3>Saved Readings</h3>
-    <div class="history card" id="historyWrap">
-      <table id="historyTable">
-        <thead><tr><th>When</th><th>pH</th><th>Temp</th><th>Turb</th><th>Index</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
+  <footer>
+    &copy; 2025 Water Health & Index | Created by Pranshu & Team
+  </footer>
 
-  </section>
+  <script>
+    function calculateHealth() {
+      const ph = parseFloat(document.getElementById('ph').value);
+      const temp = parseFloat(document.getElementById('temp').value);
+      const turbidity = document.getElementById('turbidity').value;
 
-  <aside class="right">
-    <div class="card">
-      <h3>Recent Index Chart</h3>
-      <canvas id="indexChart" height="180"></canvas>
-    </div>
+      if (isNaN(ph) || isNaN(temp) || turbidity === "") {
+        document.getElementById('score').textContent = "⚠️ Please fill all fields correctly.";
+        document.getElementById('advice').textContent = "";
+        return;
+      }
 
-    <div class="card">
-      <h3>pH Distribution</h3>
-      <canvas id="phBar" height="140"></canvas>
-    </div>
+      let score = 100;
 
-    <div class="card">
-      <h3>Quick Links</h3>
-      <ul class="quick-links">
-        <li><a href="phchart.html">pH reference chart</a></li>
-        <li><a href="phcare.html">How to neutralize pH</a></li>
-        <li><a href="map.html">Explore world samples</a></li>
-      </ul>
-    </div>
+      // pH penalty
+      if (ph < 6.5) score -= (6.5 - ph) * 10;
+      if (ph > 8.5) score -= (ph - 8.5) * 10;
 
-  </aside>
-</main>
+      // Temperature penalty (ideal 20–30°C)
+      if (temp < 20) score -= (20 - temp) * 2;
+      if (temp > 30) score -= (temp - 30) * 2;
 
-<footer class="site-footer">
-  <div>© 2025 Smart River Health • Built by AquaGuard Innovators</div>
-</footer>
+      // Turbidity penalty
+      if (turbidity === "medium") score -= 25;
+      if (turbidity === "high") score -= 50;
 
-<script>
-/* ========== Simple, clear index logic (no weights UI) ========== */
-(function(){
-  // helpers
-  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-  function round(v){ return Math.round(v); }
+      // Clamp score between 0 and 100
+      score = Math.max(0, Math.min(100, Math.round(score)));
 
-  // scoring subs
-  function scorePH(ph){
-    // center 7.2 best, ideal window 6.5-8.5
-    if (ph >= 6.5 && ph <= 8.5) return 100 - Math.abs(7.2 - ph) * 6; // small penalty inside ideal
-    // outside ideal rapid penalty
-    const diff = Math.abs(ph - 7.5);
-    return clamp(100 - Math.pow(diff,1.5)*10,0,100);
-  }
-  function scoreTemp(t){
-    // best 20-28
-    if (t>=20 && t<=28) return 100 - Math.abs(24 - t) * 1.5;
-    if (t < 20) return clamp(100 - Math.pow(20 - t,1.2)*6,0,100);
-    return clamp(100 - Math.pow(t - 28,1.2)*7,0,100);
-  }
-  function scoreTurb(turb){
-    if (turb === 'low') return 100;
-    if (turb === 'medium') return 60;
-    if (turb === 'high') return 30;
-    return 50;
-  }
+      document.getElementById('score').textContent = `💧 Health Index: ${score}/100`;
 
-  // advice mapping (concise but more nuanced)
-  const adviceMap = [
-    {min:95, text:"Excellent — near-pristine. Keep protecting the catchment."},
-    {min:85, text:"Very good — minimal issues. Monitor seasonally."},
-    {min:75, text:"Good — small issues; check upstream runoff after heavy rain."},
-    {min:65, text:"Fair — slight stress for sensitive species; reduce pollution inputs."},
-    {min:55, text:"Moderate — manage sediments and test for nutrients."},
-    {min:45, text:"Below ideal — avoid drinking; consider filtration for usage."},
-    {min:35, text:"Poor — limit contact; inspect upstream sources and report if needed."},
-    {min:25, text:"Very poor — likely pollution; sample and escalate to local authority."},
-    {min:0,  text:"Critical — hazardous water. Do not use; urgent cleanup required."}
-  ];
+      let advice = "";
 
-  function getAdvice(index){
-    for (let i=0;i<adviceMap.length;i++){
-      if (index >= adviceMap[i].min) return adviceMap[i].text;
+      if (score >= 90) advice = "Excellent water quality. Safe for drinking and aquatic life.";
+      else if (score >= 75) advice = "Good quality. Slight impurities detected. Regular monitoring advised.";
+      else if (score >= 60) advice = "Moderate quality. Suitable for irrigation, not drinking.";
+      else if (score >= 45) advice = "Poor quality. Needs treatment before use.";
+      else if (score >= 30) advice = "Highly polluted. Avoid contact; possible contamination risk.";
+      else advice = "Severely contaminated water. Report pollution sources immediately.";
+
+      document.getElementById('advice').textContent = advice;
     }
-    return "No advice.";
-  }
-
-  // DOM
-  const phEl = document.getElementById('ph');
-  const tempEl = document.getElementById('temp');
-  const turbEl = document.getElementById('turb');
-  const analyzeBtn = document.getElementById('analyze');
-  const saveBtn = document.getElementById('save');
-  const clearBtn = document.getElementById('clear');
-  const resultDiv = document.getElementById('result');
-  const scoreBubble = document.getElementById('scoreBubble');
-  const statusWord = document.getElementById('statusWord');
-  const statusChip = document.getElementById('statusChip');
-  const subscores = document.getElementById('subscores');
-  const adviceDiv = document.getElementById('advice');
-  const historyTbody = document.querySelector('#historyTable tbody');
-
-  const STORAGE_KEY = 'srh_readings_v2';
-
-  function loadHistory(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e){ return []; } }
-  function saveHistory(arr){ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
-
-  function renderHistory(){
-    const arr = loadHistory();
-    historyTbody.innerHTML = '';
-    arr.forEach(r=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${new Date(r.ts).toLocaleString()}</td><td>${r.ph}</td><td>${r.temp}</td><td>${r.turb}</td><td>${r.index}</td>`;
-      historyTbody.appendChild(tr);
-    });
-    updateCharts();
-  }
-
-  // Chart.js setup
-  let indexChart, phBar;
-  function setupCharts(){
-    const ctx = document.getElementById('indexChart').getContext('2d');
-    indexChart = new Chart(ctx, {
-      type:'line', data:{labels:[], datasets:[{label:'Index', data:[], fill:true, backgroundColor:'rgba(1,122,153,0.12)', borderColor:'#0177a5'}]},
-      options:{scales:{y:{min:0,max:100}}}
-    });
-    const ctx2 = document.getElementById('phBar').getContext('2d');
-    phBar = new Chart(ctx2, {
-      type:'bar', data:{labels:[], datasets:[{label:'pH', data:[], backgroundColor:[]}],
-      }, options:{scales:{y:{min:0,max:14}}}
-    });
-  }
-  function updateCharts(){
-    const arr = loadHistory().slice(0,50);
-    const labels = arr.map(a=>new Date(a.ts).toLocaleTimeString());
-    const data = arr.map(a=>a.index);
-    indexChart.data.labels = labels;
-    indexChart.data.datasets[0].data = data;
-    indexChart.update();
-
-    phBar.data.labels = labels;
-    phBar.data.datasets[0].data = arr.map(a=>a.ph);
-    phBar.data.datasets[0].backgroundColor = arr.map(a=>a.index>=80?'rgba(46,125,50,0.8)':(a.index>=50?'rgba(249,168,37,0.8)':'rgba(198,40,40,0.8)'));
-    phBar.update();
-  }
-
-  function analyze(showUI=true){
-    const ph = parseFloat(phEl.value);
-    const temp = parseFloat(tempEl.value);
-    const turb = turbEl.value;
-    if (isNaN(ph) || isNaN(temp) || !turb){ alert('Enter pH, temperature and turbidity.'); return null; }
-
-    const phS = scorePH(ph);
-    const tS = scoreTemp(temp);
-    const turbS = scoreTurb(turb);
-    // weighted (simple fixed weights)
-    const idx = clamp(round(phS*0.45 + tS*0.28 + turbS*0.27), 0, 100);
-
-    if (showUI){
-      resultDiv.style.display = 'flex';
-      scoreBubble.textContent = idx;
-      subscores.textContent = `pH: ${Math.round(phS)} • Temp: ${Math.round(tS)} • Turbidity: ${Math.round(turbS)}`;
-      const advice = getAdvice(idx);
-      adviceDiv.textContent = advice;
-
-      // status
-      if (idx >= 80){ statusWord.textContent = 'Excellent'; statusChip.className='chip good'; }
-      else if (idx >= 50){ statusWord.textContent = 'Moderate'; statusChip.className='chip warn'; }
-      else { statusWord.textContent = 'Poor'; statusChip.className='chip bad'; }
-    }
-
-    return {idx,phS,tS,turbS,ph,temp,turb};
-  }
-
-  analyzeBtn.addEventListener('click', function(){ analyze(true); });
-  saveBtn.addEventListener('click', function(){
-    const out = analyze(false);
-    if (!out) return;
-    const arr = loadHistory();
-    arr.unshift({ts:Date.now(), ph:out.ph, temp:out.temp, turb:out.turb, index:out.idx});
-    saveHistory(arr);
-    renderHistory();
-  });
-  clearBtn.addEventListener('click', function(){
-    if (!confirm('Clear saved readings?')) return;
-    localStorage.removeItem(STORAGE_KEY);
-    renderHistory();
-  });
-
-  // init
-  setupCharts();
-  renderHistory();
-
-  // prefill example values
-  phEl.value = 7.2; tempEl.value = 25; turbEl.value = 'low';
-})();
-</script>
-
+  </script>
 </body>
 </html>
