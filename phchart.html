@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>pH Chart — Water Health & Index</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --primary:#0093E9;
+      --secondary:#80D0C7;
+      --bg: linear-gradient(180deg,var(--primary),var(--secondary));
+      --card:#fff;
+      --muted:#274142;
+      --radius:12px;
+    }
+    *{box-sizing:border-box}
+    body{font-family:"Poppins",system-ui,Arial,sans-serif;margin:0;background:linear-gradient(180deg,#0077b6 0%, #00b4d8 100%);color:#06343a}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px;max-width:1200px;margin:0 auto;color:white}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:54px;height:54px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+    nav a{color:white;text-decoration:none;margin-left:12px;font-weight:600}
+    .page{max-width:1200px;margin:18px auto;padding:16px}
+    .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 12px 30px rgba(0,0,0,0.12)}
+    h1{margin:0 0 8px 0;color:#06343a}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .gradient-bar{
+      height:46px;border-radius:12px;border:1px solid rgba(2,60,80,0.06);
+      background: linear-gradient(90deg,
+        #6b0000 0%,
+        #ff3b30 6%,
+        #ff7a00 14%,
+        #ffb300 24%,
+        #ffee58 38%,
+        #b2ff59 46%,
+        #64ffda 58%,
+        #00b0ff 72%,
+        #0077ff 86%,
+        #1f0b4b 100%);
+      position:relative;box-shadow:0 10px 30px rgba(2,60,80,0.06)
+    }
+    .tick-row{display:flex;justify-content:space-between;margin-top:8px;font-weight:700;color:var(--muted);font-size:0.95rem}
+    .controls{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    input[type=number]{padding:8px;border-radius:8px;border:1px solid #e8f6fb;width:110px}
+    .btn{background:linear-gradient(90deg,var(--primary),var(--secondary));color:#fff;border:none;padding:8px 12px;border-radius:8px;font-weight:700;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(2,60,80,0.06);color:var(--muted)}
+    .badge{display:inline-block;padding:8px 10px;border-radius:8px;font-weight:700;color:#fff}
+    .cat-acid{background:linear-gradient(135deg,#ff3b30,#ff7a00)}
+    .cat-neutral{background:linear-gradient(135deg,#2e7d32,#66bb6a)}
+    .cat-alk{background:linear-gradient(135deg,#0077ff,#00b0ff)}
+    .info-block{margin-top:12px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border-bottom:1px dashed rgba(2,60,80,0.04);text-align:left}
+    .small{font-size:0.92rem;color:var(--muted)}
+    .click-hint{font-size:0.9rem;color:var(--muted);margin-top:8px}
+    footer{max-width:1200px;margin:18px auto;padding:12px;color:white;text-align:center}
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand" style="margin-left:24px">
+      <div class="logo">PH</div>
+      <div>
+        <div style="font-weight:800">Water Health & Index</div>
+        <div style="font-size:12px;opacity:0.95">pH reference & interactive guide</div>
+      </div>
+    </div>
+
+    <nav style="margin-right:24px">
+      <a href="index.html">Home</a>
+      <a href="map.html" style="margin-left:12px">Map</a>
+      <a href="phchart.html" style="margin-left:12px;font-weight:900;text-decoration:underline">pH Chart</a>
+      <a href="phcare.html" style="margin-left:12px">pH Care</a>
+      <a href="details.html" style="margin-left:12px">Details</a>
+    </nav>
+  </header>
+
+  <div class="page">
+    <div class="card">
+      <h1>Interactive pH Chart</h1>
+      <p class="small">Click the gradient, type a pH, or use the quick examples to see what each pH range means and get practical advice. Use the "<strong>Open in Home</strong>" button to continue measurement and save results there.</p>
+
+      <div class="grid" style="margin-top:12px">
+        <!-- LEFT: interactive chart -->
+        <section>
+          <div style="margin-bottom:8px">pH Gradient</div>
+          <div id="grad" class="gradient-bar" title="Click to choose pH value"></div>
+          <div class="tick-row">
+            <span>0</span><span>2</span><span>4</span><span>6</span><span>7</span><span>8</span><span>10</span><span>12</span><span>14</span>
+          </div>
+
+          <div class="controls">
+            <label for="phVal" style="font-weight:700;color:#06343a">pH</label>
+            <input id="phVal" type="number" step="0.1" min="0" max="14" placeholder="7.0">
+            <button id="checkBtn" class="btn">Check</button>
+            <button id="openHome" class="btn ghost">Open in Home</button>
+            <div id="catBadge" style="margin-left:6px"></div>
+          </div>
+
+          <div id="resultBox" class="info-block" style="display:none">
+            <div style="display:flex;gap:12px;align-items:center">
+              <div id="bigPH" style="font-weight:800;font-size:28px;color:#06343a">pH 7.0</div>
+              <div id="category" class="badge cat-neutral">Neutral</div>
+            </div>
+            <div id="phAdvice" style="margin-top:10px" class="small"></div>
+            <div style="margin-top:12px">
+              <strong>Practical impact:</strong>
+              <div id="impact" class="small" style="margin-top:6px"></div>
+            </div>
+          </div>
+
+          <div style="margin-top:18px">
+            <strong>Quick examples</strong>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+              <button class="btn ghost ex" data-ph="4.5">pH 4.5 (Acidic)</button>
+              <button class="btn ghost ex" data-ph="6.0">pH 6.0 (Slightly acidic)</button>
+              <button class="btn ghost ex" data-ph="7.0">pH 7.0 (Neutral)</button>
+              <button class="btn ghost ex" data-ph="8.4">pH 8.4 (Slight alkaline)</button>
+              <button class="btn ghost ex" data-ph="10.0">pH 10.0 (Alkaline)</button>
+            </div>
+          </div>
+
+          <div style="margin-top:18px" class="card">
+            <h3 style="margin:0 0 8px 0">How click-to-select works</h3>
+            <p class="small">Click anywhere on the gradient; it maps the horizontal position to the pH scale 0–14. For best accuracy, use calibration and white light when scanning physical strips.</p>
+          </div>
+        </section>
+
+        <!-- RIGHT: reference and table -->
+        <aside>
+          <div class="card">
+            <h3 style="margin:0 0 8px 0">pH Ranges & Guidance</h3>
+            <table>
+              <thead><tr><th>Range</th><th>Label</th><th>Guidance</th></tr></thead>
+              <tbody>
+                <tr><td>0–3</td><td>Very acidic</td><td>Corrosive; toxic to most aquatic life. Avoid contact.</td></tr>
+                <tr><td>4–5</td><td>Acidic</td><td>Harmful to sensitive species; test for metal leaching.</td></tr>
+                <tr><td>5.5–6.4</td><td>Slightly acidic</td><td>Some stress for sensitive species; monitor trends.</td></tr>
+                <tr><td>6.5–8.5</td><td>Neutral / Healthy</td><td>Suitable for most aquatic life and recreational use (typically).</td></tr>
+                <tr><td>8.6–9.5</td><td>Slightly alkaline</td><td>Monitor for ammonia toxicity in warm water.</td></tr>
+                <tr><td>9.6–11</td><td>Alkaline</td><td>May harm some fish; consider filtration/dilution.</td></tr>
+                <tr><td>11–14</td><td>Very alkaline</td><td>Corrosive and hazardous. Avoid use and notify authorities.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <h3 style="margin:0 0 8px 0">Measurement tips</h3>
+            <ul class="small" style="margin-left:16px">
+              <li>Use a calibrated meter or fresh strips for accuracy.</li>
+              <li>Measure at consistent temperature (pH is temperature-dependent).</li>
+              <li>Compare strip color under neutral white light — avoid colored lamps.</li>
+              <li>When uncertain, run multiple readings and average them.</li>
+            </ul>
+            <div class="click-hint">Want to use the camera reader? Go to <a href="index.html">Home</a> and open the camera tool.</div>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <h3 style="margin:0 0 8px 0">Sources</h3>
+            <div class="small">WHO drinking water guidelines, US EPA basics on pH and aquatic life, USGS educational materials.</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <footer>© 2025 Water Health & Index</footer>
+
+  <script>
+    // Utility functions
+    function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+    function round(v,d=2){ return Number(v.toFixed(d)); }
+
+    const grad = document.getElementById('grad');
+    const phVal = document.getElementById('phVal');
+    const checkBtn = document.getElementById('checkBtn');
+    const resultBox = document.getElementById('resultBox');
+    const bigPH = document.getElementById('bigPH');
+    const categoryEl = document.getElementById('category');
+    const phAdvice = document.getElementById('phAdvice');
+    const impactEl = document.getElementById('impact');
+    const catBadge = document.getElementById('catBadge');
+
+    // pH classification & tailored advice
+    function classifyPH(pH){
+      pH = clamp(Number(pH), 0, 14);
+      if(pH < 4.5) return {label:'Very acidic', cls:'cat-acid', advice:'Highly acidic — corrosive and toxic. Do not use. Seek environmental authority assistance for large bodies.' , impact:'Strongly corrosive; metals leach out; aquatic life mortality likely.'};
+      if(pH < 5.5) return {label:'Acidic', cls:'cat-acid', advice:'Acidic — harmful to sensitive species; consider buffering in small samples. Avoid drinking.' , impact:'Risk of metal solubility and stress to organisms.'};
+      if(pH < 6.5) return {label:'Slightly acidic', cls:'cat-acid', advice:'Slight acidity — monitor regularly and consider natural buffering (limestone) for persistent issues.' , impact:'Minor stress; watch for trends after rain.'};
+      if(pH <= 8.5) return {label:'Neutral / Healthy', cls:'cat-neutral', advice:'Healthy range — suitable for most aquatic life. Keep monitoring periodically.' , impact:'Ideal for fish, plants, and safe recreation with normal precautions.'};
+      if(pH <= 9.5) return {label:'Slightly alkaline', cls:'cat-alk', advice:'Slight alkalinity — check for mineral content; avoid direct use if unexpected.' , impact:'Minor impacts; watch for ammonia issues in warm water.'};
+      if(pH <= 11) return {label:'Alkaline', cls:'cat-alk', advice:'Alkaline — may harm fish and plants; use dilution or filtration for domestic use.' , impact:'Scaling and reduced disinfection efficiency.'};
+      return {label:'Very alkaline', cls:'cat-alk', advice:'Very alkaline — hazardous. Avoid contact and seek lab testing for large systems.' , impact:'Corrosive, harmful to organisms; treat only with professional guidance.'};
+    }
+
+    function showPH(pH){
+      const c = classifyPH(pH);
+      resultBox.style.display = 'block';
+      bigPH.textContent = 'pH ' + round(pH,2);
+      categoryEl.textContent = c.label;
+      categoryEl.className = 'badge ' + c.cls;
+      phAdvice.textContent = c.advice;
+      impactEl.textContent = c.impact;
+      catBadge.innerHTML = `<span class="badge ${c.cls}" style="font-size:0.9rem">${c.label}</span>`;
+    }
+
+    // map click to pH
+    grad.addEventListener('click', function(e){
+      const rect = grad.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const frac = clamp(x / rect.width, 0, 1);
+      const ph = frac * 14; // 0..14
+      phVal.value = round(ph,2);
+      showPH(ph);
+    });
+
+    checkBtn.addEventListener('click', ()=>{
+      const v = parseFloat(phVal.value);
+      if(isNaN(v) || v < 0 || v > 14){ alert('Enter a pH value between 0 and 14'); phVal.focus(); return; }
+      showPH(v);
+    });
+
+    // examples
+    document.querySelectorAll('.ex').forEach(b=>{
+      b.addEventListener('click', ()=> {
+        const v = parseFloat(b.dataset.ph);
+        phVal.value = v;
+        showPH(v);
+      });
+    });
+
+    // open home with prefilled pH
+    document.getElementById('openHome').addEventListener('click', ()=>{
+      const v = parseFloat(phVal.value);
+      if(isNaN(v) || v < 0 || v > 14){ alert('Enter a valid pH first'); phVal.focus(); return; }
+      // open index.html with pH in query string
+      const url = 'index.html?ph=' + encodeURIComponent(round(v,2));
+      window.location.href = url;
+    });
+
+    // show a default neutral on load
+    showPH(7.0);
+  </script>
+</body>
+</html>
