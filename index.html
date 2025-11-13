@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Water Health & Index — Home (Precision Camera pH)</title>
+<meta name="description" content="Precision camera pH reader with ΔE2000 color matching, white balance, multi-sample averaging, and robust Water Health Index calculation." />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg1:#f3fbff; --accent1:#0077b6; --accent2:#00b4d8; --card:#ffffff; --text:#07323a;
+    --good:#2e7d32; --warn:#f9a825; --bad:#c62828; --radius:12px; --maxw:1100px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Poppins",system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),#eaf9ff);color:var(--text);-webkit-font-smoothing:antialiased}
+  header{max-width:var(--maxw);margin:18px auto;padding:18px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),var(--accent1));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px;box-shadow:0 10px 30px rgba(2,60,80,0.08)}
+  nav a{color:var(--accent1);text-decoration:none;margin-left:12px;font-weight:700}
+  main{max-width:var(--maxw);margin:10px auto;padding:0 18px 60px 18px}
+  .hero{display:flex;gap:18px;align-items:flex-start}
+  .left{flex:1}
+  .right{width:360px}
+  .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 12px 40px rgba(2,60,80,0.06)}
+  h1{margin:0;font-size:1.4rem}
+  p.lead{margin:6px 0 0 0;color:#13555a}
+  button.btn{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;border:none;padding:10px 14px;border-radius:10px;font-weight:800;cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid rgba(2,60,80,0.06);color:var(--text)}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .camera-wrap{margin-top:12px;position:relative;border-radius:10px;overflow:hidden}
+  video#video{width:100%;height:auto;background:#000;display:block}
+  .overlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:136px;height:54px;border:2px dashed rgba(255,255,255,0.9);border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,0.12);pointer-events:none}
+  .small{font-size:0.92rem;color:#225a5f}
+  .muted{color:#6f8a8b}
+  .result{margin-top:12px}
+  .bubble{width:120px;height:120px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:1.3rem}
+  .bubble.good{background:linear-gradient(135deg,#2e7d32,#66bb6a)}
+  .bubble.warn{background:linear-gradient(135deg,#f9a825,#ffd54f);color:#111}
+  .bubble.bad{background:linear-gradient(135deg,#c62828,#ff8a80)}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+  @media(max-width:1020px){.grid{grid-template-columns:1fr}}
+  label{display:block;margin-top:10px;font-weight:700;color:var(--text)}
+  input[type=number], select {width:100%;padding:10px;border-radius:8px;border:1px solid #eef9ff;font-size:15px}
+  .adv{margin-top:10px;padding:12px;border-radius:10px;background:linear-gradient(90deg,#f6fffc,#f0f9ff);color:var(--text)}
+  .warnbox{background:#fff4e6;padding:10px;border-radius:8px;border-left:4px solid #ff8a00;margin-top:10px}
+  .meta{font-size:0.9rem;color:#234}
+  .hidden{display:none}
+  .cal-list{font-size:0.9rem;color:#0b6b6f;margin-top:6px}
+  .footer{margin-top:28px;text-align:center;color:#0b5962}
+  .confidence{font-weight:800}
+  .details {font-size:0.86rem;color:#4b6b6a}
+  .steps{margin-top:8px}
+  .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,0.04);font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">WH</div>
+    <div>
+      <div style="font-weight:800;color:var(--text)">Water Health & Index</div>
+      <div class="small">Precision camera pH capture — ΔE2000 color matching</div>
+    </div>
+  </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="map.html">Map</a>
+    <a href="phchart.html">pH Chart</a>
+    <a href="phcare.html">pH Care</a>
+    <a href="details.html">Details</a>
+  </nav>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="left card">
+      <h1>Precision Camera pH Reader</h1>
+      <p class="lead">Hover the pH strip so the colored patch sits inside the dashed box, then press <strong>Capture</strong>. For best results: neutral white light and steady hand. Capture a white reference at the start of each session.</p>
+
+      <div class="controls">
+        <button id="openCam" class="btn">Open Camera</button>
+        <button id="capture" class="btn ghost" disabled>Capture</button>
+        <button id="avg3" class="btn ghost" disabled>Average 3</button>
+        <button id="white" class="btn ghost" disabled>Capture White</button>
+        <button id="addCal" class="btn ghost" disabled>Add Calibration</button>
+        <button id="resetCal" class="btn ghost" disabled>Reset Calibration</button>
+      </div>
+
+      <div id="cameraArea" class="camera-wrap hidden card" style="margin-top:12px">
+        <video id="video" playsinline autoplay muted></video>
+        <div class="overlay" title="Place strip color here"></div>
+        <canvas id="work" width="1280" height="720" style="display:none"></canvas>
+        <div class="small muted" style="margin-top:8px">Tip: capture white reference now if lighting may vary.</div>
+      </div>
+
+      <div class="result card hidden" id="resultCard">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div id="bubble" class="bubble good">--</div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between">
+              <div>
+                <div style="font-weight:900" id="indexNum">-- / 100</div>
+                <div class="details" id="indexLabel">—</div>
+              </div>
+              <div style="text-align:right">
+                <div class="details">pH</div>
+                <div style="font-weight:900;font-size:20px" id="phVal">--</div>
+              </div>
+            </div>
+
+            <div class="adv" id="shortAdvice">Advice will appear here after analysis.</div>
+            <div style="margin-top:8px" class="details">Confidence: <span id="conf">--</span></div>
+            <div style="margin-top:6px" class="details">Captured RGB: <span id="rgbOut">—</span> | Calibrated: <span id="calState">no</span></div>
+            <div class="steps" id="prioritySteps"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="safety" class="warnbox hidden"></div>
+
+      <div style="margin-top:12px" class="card">
+        <h3 style="margin:0 0 8px 0">How it works (short)</h3>
+        <p class="muted">This uses perceptual color matching (CIELab + ΔE2000) between your capture and a dense reference color map of pH indicator colors, with multi-sample averaging and white-balance correction. Optional calibration with known strips improves accuracy for your phone + strip brand.</p>
+      </div>
+
+    </div>
+
+    <aside class="right">
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Manual inputs</h3>
+        <label>Manual pH override (optional)</label>
+        <input id="manualPH" type="number" step="0.01" min="0" max="14" placeholder="Leave blank to use camera">
+
+        <label>Temperature (°C)</label>
+        <input id="temp" type="number" step="0.1" placeholder="e.g. 25">
+
+        <label>Turbidity</label>
+        <select id="turb">
+          <option value="">Select turbidity</option>
+          <option value="low">Low (clear)</option>
+          <option value="medium">Medium (cloudy)</option>
+          <option value="high">High (muddy)</option>
+        </select>
+
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button id="analyzeBtn" class="btn">Analyze</button>
+          <button id="saveBtn" class="btn ghost" disabled>Save</button>
+        </div>
+
+        <div class="cal-list" id="calList">Calibration points: 0</div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin:0 0 8px 0">Reference pH ranges</h3>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td>0–3</td><td>Very acidic (hazard)</td></tr>
+          <tr><td>4–6</td><td>Acidic (concern)</td></tr>
+          <tr><td>6.5–8.5</td><td>Neutral / healthy</td></tr>
+          <tr><td>9–11</td><td>Alkaline (concern)</td></tr>
+          <tr><td>12–14</td><td>Very alkaline (hazard)</td></tr>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin:0 0 8px 0">Developer notes</h3>
+        <p class="muted" style="margin:0">Everything runs locally in the browser. Calibration data and readings are saved to localStorage. Optionally enable Firebase push (see bottom of script) to upload readings to your database.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h3 style="margin-top:0">Detailed explanation & troubleshooting</h3>
+      <ul class="muted">
+        <li>Capture a white reference (plain white paper) once per session to remove camera tint.</li>
+        <li>If confidence is low (<50%), retake capture under neutral light and ensure no glare.</li>
+        <li>Calibration: if you have pH standards (4,7,10) capture and add them using <strong>Add Calibration</strong> — this will tailor the color→pH map to your phone & strip brand.</li>
+      </ul>
+
+      <h4 style="margin-top:12px">Advanced: ΔE2000 (perceptual color distance)</h4>
+      <p class="muted">This page computes ΔE2000 between the captured Lab color and reference Lab colors to find the perceptual closest matches. Weighted interpolation of the top matches yields a stable pH estimate across the strip color gradient.</p>
+    </section>
+
+    <aside class="card">
+      <h3 style="margin:0 0 8px 0">Saved readings (local)</h3>
+      <div id="readingList" class="muted">No saved readings yet.</div>
+      <div style="margin-top:8px" class="small">Readings saved locally to your browser. You can enable cloud upload later.</div>
+    </aside>
+  </div>
+
+  <div class="footer">© 2025 Water Health & Index — Use caution; confirm extreme results with lab tests.</div>
+</main>
+
+<script>
+/* ==========================
+   Precision pH camera page
+   - ΔE2000 implementation
+   - RGB -> Lab conversions
+   - white balance
+   - multi-sample averaging
+   - inverse-distance weighted interpolation for pH estimate
+   - WHI score calculation
+   - local storage of calibration and readings
+   ========================== */
+
+/* ---------- Color math utilities ---------- */
+// sRGB gamma decode
+function srgbToLin(c){ c = c/255; return (c <= 0.04045) ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); }
+function linToSrgb(c){ return (c <= 0.0031308) ? 12.92*c : 1.055*Math.pow(c,1/2.4)-0.055; }
+
+// RGB to XYZ (D65)
+function rgbToXyz(rgb){
+  const R = srgbToLin(rgb.r), G = srgbToLin(rgb.g), B = srgbToLin(rgb.b);
+  const X = R*0.4124564 + G*0.3575761 + B*0.1804375;
+  const Y = R*0.2126729 + G*0.7151522 + B*0.0721750;
+  const Z = R*0.0193339 + G*0.1191920 + B*0.9503041;
+  return {X,Y,Z};
+}
+
+// XYZ to Lab (D65)
+function xyzToLab({X,Y,Z}){
+  const refX = 0.95047, refY = 1.00000, refZ = 1.08883;
+  let x = X / refX, y = Y / refY, z = Z / refZ;
+  function f(t){ return t > 0.008856 ? Math.cbrt(t) : (7.787 * t + 16/116); }
+  const fx = f(x), fy = f(y), fz = f(z);
+  const L = 116*fy - 16;
+  const a = 500*(fx - fy);
+  const b = 200*(fy - fz);
+  return {L,a,b};
+}
+
+// RGB (0..255) to Lab
+function rgbToLab(rgb){ return xyzToLab(rgbToXyz(rgb)); }
+
+/* Delta-E 2000 implementation (per Sharma et al.). Returns perceptual distance. */
+// Implementation follows public formulas — optimized for JS usage.
+function deg2rad(d){ return (d * Math.PI) / 180; }
+function rad2deg(r){ return (r * 180) / Math.PI; }
+
+function deltaE2000(lab1, lab2){
+  // adapt code from standard algorithm
+  const L1 = lab1.L, a1 = lab1.a, b1 = lab1.b;
+  const L2 = lab2.L, a2 = lab2.a, b2 = lab2.b;
+  const avgLp = (L1 + L2) / 2.0;
+  const C1 = Math.sqrt(a1*a1 + b1*b1);
+  const C2 = Math.sqrt(a2*a2 + b2*b2);
+  const avgC = (C1 + C2) / 2.0;
+  const G = 0.5 * (1 - Math.sqrt(Math.pow(avgC,7) / (Math.pow(avgC,7) + Math.pow(25,7))));
+  const a1p = (1+G)*a1;
+  const a2p = (1+G)*a2;
+  const C1p = Math.sqrt(a1p*a1p + b1*b1);
+  const C2p = Math.sqrt(a2p*a2p + b2*b2);
+  const avgCp = (C1p + C2p)/2.0;
+  const h1p = Math.atan2(b1, a1p) >= 0 ? Math.atan2(b1, a1p) : Math.atan2(b1, a1p) + 2*Math.PI;
+  const h2p = Math.atan2(b2, a2p) >= 0 ? Math.atan2(b2, a2p) : Math.atan2(b2, a2p) + 2*Math.PI;
+  let avgHp = Math.abs(h1p - h2p) > Math.PI ? (h1p + h2p + 2*Math.PI)/2.0 : (h1p + h2p)/2.0;
+  const T = 1 - 0.17*Math.cos(avgHp - deg2rad(30)) + 0.24*Math.cos(2*avgHp) + 0.32*Math.cos(3*avgHp + deg2rad(6)) - 0.20*Math.cos(4*avgHp - deg2rad(63));
+  let deltahp = h2p - h1p;
+  if (Math.abs(deltahp) > Math.PI) {
+    if (h2p <= h1p) deltahp += 2*Math.PI;
+    else deltahp -= 2*Math.PI;
+  }
+  const dLp = L2 - L1;
+  const dCp = C2p - C1p;
+  const dhp = 2 * Math.sqrt(C1p * C2p) * Math.sin(deltahp / 2.0);
+  const SL = 1 + ((0.015 * Math.pow(avgLp - 50,2)) / Math.sqrt(20 + Math.pow(avgLp - 50,2)));
+  const SC = 1 + 0.045 * avgCp;
+  const SH = 1 + 0.015 * avgCp * T;
+  const deltaRo = 30 * Math.exp(-Math.pow((rad2deg(avgHp) - 275) / 25, 2));
+  const RC = 2 * Math.sqrt(Math.pow(avgCp,7) / (Math.pow(avgCp,7) + Math.pow(25,7)));
+  const RT = -Math.sin(2 * deg2rad(deltaRo)) * RC;
+  const kL = 1, kC = 1, kH = 1;
+  const dE = Math.sqrt(
+    Math.pow(dLp / (kL * SL), 2) +
+    Math.pow(dCp / (kC * SC), 2) +
+    Math.pow(dhp / (kH * SH), 2) +
+    RT * (dCp / (kC * SC)) * (dhp / (kH * SH))
+  );
+  return dE;
+}
+
+/* ---------- Reference color map (dense & smooth) ----------
+   These are approximate indicator colors across pH 0..14.
+   They are converted into Lab at startup for fast comparisons.
+   You can optionally calibrate with real strip captures (recommended).
+   ---------- */
+const REF_RGB = [
+  {ph:0.0, rgb:{r:120,g:0,b:0}},
+  {ph:0.5, rgb:{r:160,g:16,b:16}},
+  {ph:1.0, rgb:{r:190,g:30,b:30}},
+  {ph:2.0, rgb:{r:220,g:70,b:40}},
+  {ph:3.0, rgb:{r:245,g:120,b:50}},
+  {ph:4.0, rgb:{r:255,g:180,b:60}},
+  {ph:4.5, rgb:{r:255,g:210,b:90}},
+  {ph:5.0, rgb:{r:245,g:235,b:120}},
+  {ph:5.5, rgb:{r:215,g:240,b:145}},
+  {ph:6.0, rgb:{r:180,g:245,b:160}},
+  {ph:6.5, rgb:{r:150,g:240,b:170}},
+  {ph:7.0, rgb:{r:110,g:200,b:110}},
+  {ph:7.5, rgb:{r:90,g:205,b:150}},
+  {ph:8.0, rgb:{r:120,g:200,b:210}},
+  {ph:8.5, rgb:{r:100,g:170,b:220}},
+  {ph:9.0, rgb:{r:80,g:150,b:230}},
+  {ph:9.5, rgb:{r:70,g:130,b:210}},
+  {ph:10.0, rgb:{r:60,g:110,b:190}},
+  {ph:11.0, rgb:{r:48,g:85,b:170}},
+  {ph:12.0, rgb:{r:34,g:60,b:140}},
+  {ph:13.0, rgb:{r:22,g:36,b:90}},
+  {ph:14.0, rgb:{r:12,g:18,b:60}}
+];
+
+// precompute Lab for refs
+const REF = REF_RGB.map(r=>{
+  const lab = rgbToLab(r.rgb);
+  return {ph:r.ph, rgb:r.rgb, lab};
+});
+
+/* ---------- Calibration (localStorage) ---------- */
+const CAL_KEY = 'wh_calibration_v1';
+let calibration = [];
+try {
+  const raw = localStorage.getItem(CAL_KEY);
+  if (raw) {
+    const arr = JSON.parse(raw);
+    calibration = arr.map(c => ({ph:c.ph, rgb:c.rgb, lab: rgbToLab(c.rgb)}));
+  }
+} catch(e){ calibration = []; }
+updateCalUI();
+
+function saveCalibration(){
+  const toSave = calibration.map(c => ({ph:c.ph, rgb:c.rgb}));
+  localStorage.setItem(CAL_KEY, JSON.stringify(toSave));
+  updateCalUI();
+}
+function updateCalUI(){
+  document.getElementById('calList').textContent = 'Calibration points: ' + calibration.length;
+  document.getElementById('calList').style.color = calibration.length ? 'var(--accent1)' : '#6f8a8b';
+}
+
+/* ---------- Camera / capture ---------- */
+const video = document.getElementById('video');
+const work = document.getElementById('work');
+const ctx = work.getContext('2d');
+
+let stream = null;
+let whiteRef = null; // {r,g,b}
+let lastSample = null; // {rgb, lab, ph, conf}
+let readings = []; // stored readings in localStorage
+
+async function openCamera(){
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" }, width: {ideal:1280}, height:{ideal:720}},
+      audio:false
+    });
+    video.srcObject = stream;
+    video.play();
+    document.getElementById('cameraArea').classList.remove('hidden');
+    toggleButtons(true);
+  }catch(e){
+    alert('Camera error: ' + (e.message || e));
+  }
+}
+function closeCamera(){
+  if(stream){
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+  video.pause();
+  video.srcObject = null;
+  document.getElementById('cameraArea').classList.add('hidden');
+  toggleButtons(false);
+}
+
+function toggleButtons(camOn){
+  document.getElementById('capture').disabled = !camOn;
+  document.getElementById('avg3').disabled = !camOn;
+  document.getElementById('white').disabled = !camOn;
+  document.getElementById('addCal').disabled = !camOn;
+  document.getElementById('resetCal').disabled = !camOn;
+  document.getElementById('openCam').style.display = camOn ? 'none' : 'inline-block';
+  document.getElementById('capture').style.display = camOn ? 'inline-block' : 'none';
+  document.getElementById('closeCam')?.remove?.();
+}
+
+/* capture center area average */
+function captureCenter(w=136, h=54){
+  if(!stream) return null;
+  // map overlay to actual video resolution
+  const vw = video.videoWidth || work.width;
+  const vh = video.videoHeight || work.height;
+  work.width = vw; work.height = vh;
+  ctx.drawImage(video, 0, 0, vw, vh);
+  const cx = Math.floor(vw/2 - w/2), cy = Math.floor(vh/2 - h/2);
+  try{
+    const img = ctx.getImageData(cx, cy, w, h).data;
+    let r=0,g=0,b=0,cnt=0, maxSpec=0;
+    for(let i=0;i<img.length;i+=4){
+      const rr = img[i], gg = img[i+1], bb = img[i+2];
+      r += rr; g += gg; b += bb; cnt++;
+      const lum = (rr+gg+bb)/3;
+      if(lum > maxSpec) maxSpec = lum;
+    }
+    const avg = {r: Math.round(r/cnt), g: Math.round(g/cnt), b: Math.round(b/cnt), spec:maxSpec};
+    return avg;
+  }catch(e){ console.warn('capture failed', e); return null; }
+}
+
+/* white-balance correction: compute scale to make whiteRef go to neutral (255,255,255) */
+function whiteBalance(rgb){
+  if(!whiteRef) return rgb;
+  const kr = 255 / (whiteRef.r || 1);
+  const kg = 255 / (whiteRef.g || 1);
+  const kb = 255 / (whiteRef.b || 1);
+  const rr = Math.round(Math.min(255, rgb.r * kr));
+  const gg = Math.round(Math.min(255, rgb.g * kg));
+  const bb = Math.round(Math.min(255, rgb.b * kb));
+  return {r:rr,g:gg,b:bb};
+}
+
+/* estimate pH from rgb using refs + calibration with ΔE2000 weighted interpolation */
+function estimatePH(rgbRaw){
+  // apply white-balance
+  const rgb = whiteBalance(rgbRaw);
+  const lab = rgbToLab(rgb);
+
+  // build candidate list: calibration points first (if any), then refs
+  const candidates = [];
+  calibration.forEach(c => candidates.push({ph:c.ph, lab:c.lab, src:'cal'}));
+  REF.forEach(r => candidates.push({ph:r.ph, lab:r.lab, src:'ref'}));
+
+  // compute distances (deltaE2000)
+  const scored = candidates.map(c=>{
+    const d = deltaE2000(lab, c.lab);
+    return {ph:c.ph, d, src:c.src};
+  }).sort((a,b)=>a.d - b.d);
+
+  // If closest distance very low -> high confidence direct
+  const top = scored.slice(0,6);
+  // compute weights inverse to distance (with small epsilon)
+  let wsum=0, phsum=0;
+  top.forEach(t=>{
+    const weight = 1 / (t.d + 0.5); // attenuate influence from near-zero
+    phsum += t.ph * weight;
+    wsum += weight;
+  });
+  const phEst = phsum / (wsum || 1);
+
+  // build confidence: based on best d and spread
+  const best = top[0];
+  const second = top[1] || best;
+  // confidence heuristic: small d -> high conf; difference between best & next matters
+  let conf = Math.max(0, Math.min(1, (40 - best.d) / 40)); // 40 chosen as rough threshold
+  // penalize if top distances are ambiguous (top spread high)
+  const spread = top.reduce((acc,t)=>acc + t.d, 0)/top.length;
+  conf *= Math.max(0.2, 1 - (spread/50));
+  conf = Math.round(conf*100)/100;
+
+  return {ph: clamp(phEst,0,14), conf, rgb, lab, bestD: best.d};
+}
+
+/* clamp helper */
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+/* WHI calculation (robust) */
+function scorePH(ph){
+  if(isNaN(ph)) return 50;
+  if(ph >= 6.5 && ph <= 8.5) return 100;
+  // penalty grows faster further away
+  const d = ph < 6.5 ? 6.5 - ph : ph - 8.5;
+  // mapping: small d => gentle drop; large d => steep
+  const s = Math.round(100 * Math.exp(-0.5 * d));
+  return clamp(s,0,100);
+}
+function scoreTemp(t){
+  if(isNaN(t)) return 80;
+  if(t >= 22 && t <= 28) return 100;
+  const d = Math.abs(t < 22 ? 22 - t : t - 28);
+  const s = Math.round(100 * Math.exp(-0.08 * d));
+  return clamp(s,0,100);
+}
+function scoreTurb(v){
+  if(!v) return 60;
+  if(v === 'low') return 100;
+  if(v === 'medium') return 60;
+  if(v === 'high') return 20;
+  return 50;
+}
+function computeWHI(ph, temp, turb){
+  const p = scorePH(ph), t = scoreTemp(temp), u = scoreTurb(turb);
+  let raw = Math.round(p*0.45 + t*0.25 + u*0.30);
+  // penalty if any subscore below 30
+  const minSub = Math.min(p,t,u);
+  if(minSub < 30) raw = Math.round(raw - (30 - minSub) * 0.8);
+  raw = clamp(raw,0,100);
+  return {index:raw, subs:{ph:p,temp:t,turb:u}};
+}
+
+/* Advice bank (granular) */
+const ADVICE_BANK = [
+  {min:97,max:100,text:"Pristine. Maintain buffers and monitor seasonally."},
+  {min:90,max:96,text:"Excellent. No action required; log as baseline."},
+  {min:80,max:89,text:"Very good. Monitor after heavy rain."},
+  {min:70,max:79,text:"Good. Consider riparian planting to protect quality."},
+  {min:60,max:69,text:"Fair. Check upstream activities and reduce runoff."},
+  {min:50,max:59,text:"Moderate. Consider filtration for drinking purposes."},
+  {min:40,max:49,text:"Below desirable. Increase sampling frequency; lab test recommended."},
+  {min:30,max:39,text:"Poor. Use passive neutralization and check sources."},
+  {min:20,max:29,text:"Very poor. Restrict sensitive uses; notify local authorities if necessary."},
+  {min:10,max:19,text:"Critical. Dangerous to delicate life; urgent remediation advised."},
+  {min:0,max:9,text:"Severe contamination. Immediate professional response required."}
+];
+function adviceForIndex(idx){
+  for(const a of ADVICE_BANK) if(idx >= a.min && idx <= a.max) return a.text;
+  return "No specific advice.";
+}
+
+/* ---------- Storage of readings ---------- */
+const READ_KEY = 'wh_readings_v1';
+function loadReadings(){ try{ const r = localStorage.getItem(READ_KEY); return r ? JSON.parse(r) : []; }catch(e){return [];} }
+function saveReading(obj){
+  const arr = loadReadings(); arr.unshift(obj); localStorage.setItem(READ_KEY, JSON.stringify(arr)); updateReadingUI();
+}
+function updateReadingUI(){
+  const arr = loadReadings();
+  const el = document.getElementById('readingList');
+  if(!arr.length){ el.textContent = 'No saved readings.'; return; }
+  el.innerHTML = arr.slice(0,10).map(r => {
+    return `<div style="margin-bottom:8px"><strong>${r.index}/100</strong> — pH ${r.ph} • ${r.temp||'N/A'}°C • ${r.turb||'N/A'} • ${new Date(r.ts).toLocaleString()}</div>`;
+  }).join('');
+}
+updateReadingUI();
+
+/* ---------- UI wiring ---------- */
+document.getElementById('openCam').addEventListener('click', openCamera);
+document.getElementById('capture').addEventListener('click', ()=> {
+  const av = captureCenter();
+  if(!av){ alert('Capture failed. Make sure camera is ready.'); return; }
+  if(av.spec > 245){ alert('High specular reflection detected (glare). Adjust angle or lighting and retake.'); return; }
+  const est = estimatePH(av);
+  lastSample = {raw:av, est};
+  showCapture(est);
+});
+document.getElementById('avg3').addEventListener('click', async ()=>{
+  if(!stream){ alert('Open camera first'); return; }
+  const samples = [];
+  for(let i=0;i<3;i++){
+    await new Promise(r=>setTimeout(r, 350));
+    const av = captureCenter();
+    if(!av) continue;
+    if(av.spec > 245){ i--; continue; } // skip glare frames
+    samples.push(av);
+  }
+  if(!samples.length){ alert('No valid samples captured'); return; }
+  const avg = samples.reduce((acc,s)=>({r:acc.r+s.r,g:acc.g+s.g,b:acc.b+s.b}), {r:0,g:0,b:0});
+  avg.r = Math.round(avg.r/samples.length); avg.g = Math.round(avg.g/samples.length); avg.b = Math.round(avg.b/samples.length);
+  const est = estimatePH(avg);
+  lastSample = {raw:avg, est};
+  showCapture(est);
+});
+document.getElementById('white').addEventListener('click', ()=>{
+  const av = captureCenter(240,240);
+  if(!av){ alert('White capture failed'); return; }
+  whiteRef = av;
+  document.getElementById('capture').disabled = false;
+  document.getElementById('captureInfo')?.remove?.();
+  alert('White reference captured. R' + av.r + ' G' + av.g + ' B' + av.b);
+});
+document.getElementById('addCal').addEventListener('click', ()=>{
+  if(!lastSample){ alert('Capture sample first'); return; }
+  const entry = prompt('Enter exact pH value for this captured color (e.g., 7.00). This will add a local calibration point:');
+  if(!entry) return;
+  const ph = parseFloat(entry);
+  if(isNaN(ph) || ph < 0 || ph > 14){ alert('Invalid pH'); return; }
+  const rgb = lastSample.est.rgb;
+  const lab = lastSample.est.lab;
+  calibration.push({ph, rgb, lab});
+  saveCalibration();
+  alert('Calibration added: pH ' + ph);
+});
+document.getElementById('resetCal').addEventListener('click', ()=>{
+  if(!confirm('Reset all calibration points?')) return;
+  calibration = []; saveCalibration();
+  alert('Calibration reset.');
+});
+
+document.getElementById('analyzeBtn').addEventListener('click', ()=> {
+  performFullAnalysis();
+});
+document.getElementById('saveBtn').addEventListener('click', ()=>{
+  if(!window.currentAnalysis){ alert('No analysis to save'); return; }
+  saveReading(window.currentAnalysis);
+  document.getElementById('saveBtn').disabled = true;
+});
+
+/* Show capture result in UI */
+function showCapture(est){
+  document.getElementById('resultCard').classList.remove('hidden');
+  const ph = est.ph.toFixed(2);
+  document.getElementById('phVal').textContent = ph;
+  document.getElementById('rgbOut').textContent = `R${est.rgb.r} G${est.rgb.g} B${est.rgb.b}`;
+  document.getElementById('calState').textContent = calibration.length ? 'yes' : 'no';
+  document.getElementById('conf').textContent = (est.conf*100).toFixed(0) + '%';
+  // preliminary index if manual inputs present
+  const manual = parseFloat(document.getElementById('manualPH').value);
+  const phUse = !isNaN(manual) ? manual : est.ph;
+  const temp = parseFloat(document.getElementById('temp').value) || NaN;
+  const turb = document.getElementById('turb').value || null;
+  const wh = computeWHI(phUse, temp, turb);
+  document.getElementById('indexNum').textContent = wh.index + ' / 100';
+  document.getElementById('indexLabel').textContent = wh.index >= 80 ? 'GOOD' : (wh.index >= 50 ? 'MODERATE' : 'POOR');
+  document.getElementById('shortAdvice').textContent = adviceForIndex(wh.index);
+  // bubble color
+  const bubble = document.getElementById('bubble');
+  bubble.textContent = wh.index;
+  bubble.className = 'bubble ' + (wh.index >= 80 ? 'good' : (wh.index >= 50 ? 'warn' : 'bad'));
+  // priority steps
+  const steps = generatePrioritySteps(phUse, wh);
+  const stepDom = document.getElementById('prioritySteps');
+  stepDom.innerHTML = steps.map(s=>`<div style="margin-top:6px;font-size:0.95rem">• ${s}</div>`).join('');
+  // safety
+  const safetyEl = document.getElementById('safety');
+  const warns = [];
+  if(est.conf < 0.45) warns.push('Low confidence: retake under neutral light and use "Average 3".');
+  if(phUse < 4) warns.push('Extremely acidic — avoid contact and seek lab confirmation.');
+  if(phUse > 11) warns.push('Extremely alkaline — avoid contact and seek lab confirmation.');
+  if(wh.index < 40) warns.push('Low Water Health Index — consider lab testing and restricting use.');
+  if(warns.length){ safetyEl.classList.remove('hidden'); safetyEl.innerHTML = warns.join('<br>'); } else { safetyEl.classList.add('hidden'); safetyEl.innerHTML=''; }
+  // enable save
+  document.getElementById('saveBtn').disabled = false;
+  // store current analysis for save
+  window.currentAnalysis = {ts:(new Date()).toISOString(), ph:phUse, rawPH:est.ph, conf:est.conf, rgb:est.rgb, lab: est.lab, index:wh.index, subs:wh.subs, temp: (isNaN(temp)?null:temp), turb};
+}
+
+/* generate human priority steps based on pH and index */
+function generatePrioritySteps(ph, wh){
+  const steps = [];
+  if(wh.index >= 80) { steps.push('No active remediation needed — continue routine monitoring.'); return steps; }
+  if(ph < 4){
+    steps.push('Do not use water; restrict access and contact local environmental authorities.');
+    steps.push('Collect sample for lab testing (with PPE) and photograph the site.');
+    steps.push('Avoid attempts at bulk correction without experts.');
+    return steps;
+  }
+  if(ph < 6){
+    steps.push('Take multiple confirmatory readings (3 times across 24 hours).');
+    steps.push('For small volumes: consider staged bicarbonate (baking soda) additions and re-test frequently.');
+    steps.push('For ponds: install limestone contactors or crushed limestone beds.');
+    return steps;
+  }
+  if(ph > 11){
+    steps.push('Avoid contact; this is highly alkaline — notify professionals.');
+    steps.push('Do not pour acids into open water.');
+    return steps;
+  }
+  if(ph > 8.5){
+    steps.push('Investigate upstream for detergents or industrial discharge.');
+    steps.push('If small tank, dilute slowly with neutral water; for larger systems consult specialists.');
+    return steps;
+  }
+  if(wh.index < 60){
+    steps.push('Increase monitoring frequency and check upstream sources.');
+    steps.push('Use passive measures (riparian buffers, sediment traps) to slow runoff.');
+  }
+  return steps.length ? steps : ['Monitor and retest; no immediate action needed.'];
+}
+
+/* perform full analysis when user clicks Analyze (use manual override if present) */
+function performFullAnalysis(){
+  const manual = parseFloat(document.getElementById('manualPH').value);
+  if(!isNaN(manual)){
+    // use manual directly
+    const temp = parseFloat(document.getElementById('temp').value) || NaN;
+    const turb = document.getElementById('turb').value || null;
+    const wh = computeWHI(manual, temp, turb);
+    const advice = adviceForIndex(wh.index);
+    document.getElementById('resultCard').classList.remove('hidden');
+    document.getElementById('phVal').textContent = manual.toFixed(2);
+    document.getElementById('conf').textContent = 'Manual';
+    document.getElementById('indexNum').textContent = wh.index + ' / 100';
+    document.getElementById('indexLabel').textContent = wh.index >= 80 ? 'GOOD' : (wh.index >= 50 ? 'MODERATE' : 'POOR');
+    document.getElementById('shortAdvice').textContent = advice;
+    document.getElementById('bubble').textContent = wh.index;
+    document.getElementById('bubble').className = 'bubble ' + (wh.index >= 80 ? 'good' : (wh.index >= 50 ? 'warn' : 'bad'));
+    document.getElementById('prioritySteps').innerHTML = generatePrioritySteps(manual, wh).map(s=>`<div style="margin-top:6px">• ${s}</div>`).join('');
+    document.getElementById('saveBtn').disabled = false;
+    window.currentAnalysis = {ts:(new Date()).toISOString(), ph:manual, rawPH: null, conf:1, rgb:null, index:wh.index, subs:wh.subs, temp:(isNaN(temp)?null:temp), turb};
+    return;
+  }
+  // else require a capture
+  if(!lastSample){ alert('Please capture from camera or enter manual pH'); return; }
+  // use lastSample.est.ph
+  const est = lastSample.est;
+  const temp = parseFloat(document.getElementById('temp').value) || NaN;
+  const turb = document.getElementById('turb').value || null;
+  const wh = computeWHI(est.ph, temp, turb);
+  // fill UI
+  document.getElementById('resultCard').classList.remove('hidden');
+  document.getElementById('phVal').textContent = est.ph.toFixed(2);
+  document.getElementById('conf').textContent = (est.conf*100).toFixed(0) + '%';
+  document.getElementById('indexNum').textContent = wh.index + ' / 100';
+  document.getElementById('indexLabel').textContent = wh.index >= 80 ? 'GOOD' : (wh.index >= 50 ? 'MODERATE' : 'POOR');
+  document.getElementById('shortAdvice').textContent = adviceForIndex(wh.index);
+  document.getElementById('bubble').textContent = wh.index;
+  document.getElementById('bubble').className = 'bubble ' + (wh.index >= 80 ? 'good' : (wh.index >= 50 ? 'warn' : 'bad'));
+  document.getElementById('prioritySteps').innerHTML = generatePrioritySteps(est.ph, wh).map(s=>`<div style="margin-top:6px">• ${s}</div>`).join('');
+  document.getElementById('saveBtn').disabled = false;
+  window.currentAnalysis = {ts:(new Date()).toISOString(), ph:est.ph, rawPH:est.ph, conf:est.conf, rgb:est.rgb, lab:est.lab, index:wh.index, subs:wh.subs, temp:(isNaN(temp)?null:temp), turb};
+}
+
+/* ---------- initialization ---------- */
+// wire initial controls
+document.getElementById('openCam').addEventListener('click', openCamera);
+document.getElementById('capture').addEventListener('click', ()=>{}); // wired earlier
+document.getElementById('avg3').addEventListener('click', ()=>{}); // wired earlier
+document.getElementById('white').addEventListener('click', ()=>{}); // wired earlier
+
+// add a Close camera small button (not shown in UI initially)
+(function addCloseBtn(){
+  const b = document.createElement('button');
+  b.textContent = 'Close Camera';
+  b.className = 'btn ghost';
+  b.style.display = 'none';
+  b.id = 'closeCam';
+  b.addEventListener('click', closeCamera);
+  document.querySelector('.controls').appendChild(b);
+})();
+
+// load calibration UI
+updateCalUI();
+
+/* ---------- optional: firebase push (disabled by default) ----------
+If you want to upload readings to Firebase, uncomment and place your firebase config,
+then enable uploadReading() below. (I left it commented to avoid accidental pushes.)
+---------------------------------------------------------------------*/
+
+/*
+ // Example:
+ // 1) Add firebase scripts in head:
+ // <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+ // <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+ // 2) Then initialize with your config and enable uploadReading call inside saveReading function.
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCIgZOJcjxG1q_wLXsQfxoKTY7o_6zkEDc",
+  authDomain: "waterhealthandindex.firebaseapp.com",
+  projectId: "waterhealthandindex",
+  storageBucket: "waterhealthandindex.firebasestorage.app",
+  messagingSenderId: "512269478610",
+  appId: "1:512269478610:web:d17254c1659e8ec2141b0b",
+  measurementId: "G-BGY7HCP7XX"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+function uploadReading(r){
+  // push to realtime DB: waterReadings
+  db.ref('waterReadings').push(r);
+}
+ // call uploadReading(window.currentAnalysis) when you want to upload
+*/
+
+/* ---------- helpers to detect support and show hints ---------- */
+if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+  document.getElementById('openCam').disabled = true;
+  alert('Camera is not supported in this browser. Use Chrome or a modern mobile browser to use the camera features.');
+}
+
+</script>
+</body>
+</html>
