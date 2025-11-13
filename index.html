@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Water Health & Index — Home</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Water Health & Index — measure, record and share river water health with camera-assisted pH reading, location and map-ready saves." />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase (compat) for easy use with provided config -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    /* =========================
+       Global / Theme CSS
+       ========================= */
+    :root{
+      --primary:#0093E9;
+      --secondary:#80D0C7;
+      --bg1: #e8f7ff;
+      --card:#ffffff;
+      --muted:#274142;
+      --good:#2e7d32;
+      --warn:#f9a825;
+      --bad:#c62828;
+      --glass: rgba(255,255,255,0.10);
+      --radius:14px;
+      --maxw:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Poppins",system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--primary),var(--secondary));color:var(--muted)}
+    header.site-header{max-width:var(--maxw);margin:18px auto;padding:18px;display:flex;align-items:center;justify-content:space-between;color:white}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:58px;height:58px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;box-shadow:0 12px 40px rgba(0,0,0,0.18)}
+    .title{font-size:1.15rem;font-weight:700}
+    nav.site-nav{display:flex;gap:10px;align-items:center}
+    nav.site-nav a{color:white;text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:600}
+    nav.site-nav a.active{box-shadow:0 10px 30px rgba(0,0,0,0.15)}
+    .page-wrap{max-width:var(--maxw);margin:18px auto;padding:18px}
+    .container{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 12px 40px rgba(2,60,80,0.08)}
+    .layout{display:grid;grid-template-columns:1fr 380px;gap:18px}
+    @media(max-width:980px){.layout{grid-template-columns:1fr}}
+    h2{color:var(--primary);margin:0 0 8px 0}
+    label{display:block;margin-top:12px;font-weight:700;color:var(--muted)}
+    input[type=number], input[type=text], select, textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #e8f6fb;font-size:1rem;margin-top:6px}
+    .btn{background:linear-gradient(90deg,var(--primary),var(--secondary));color:white;border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(2,60,80,0.06);color:var(--muted)}
+    .small{font-size:0.92rem;color:var(--muted)}
+    .card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 8px 30px rgba(2,60,80,0.04)}
+    .result-large{display:flex;gap:12px;align-items:center;padding:14px;border-radius:12px}
+    .score-bubble{width:128px;height:128px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:900;color:white;font-size:1.6rem;box-shadow:0 12px 36px rgba(0,0,0,0.15)}
+    .meta{flex:1;text-align:left}
+    .status-chip{display:inline-block;padding:6px 10px;border-radius:999px;color:white;font-weight:800;margin-left:8px}
+    .status-good{background:var(--good)}
+    .status-warn{background:var(--warn);color:#111}
+    .status-bad{background:var(--bad)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px dashed rgba(2,60,80,0.04);font-size:0.95rem}
+    .history{max-height:260px;overflow:auto;margin-top:8px}
+    .map-preview{height:260px;border-radius:10px;overflow:hidden;border:1px solid rgba(2,60,80,0.04);background:#eaf6fb}
+    .controls-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .kbd{background:#eef9ff;padding:6px 8px;border-radius:6px;border:1px solid rgba(2,60,80,0.04)}
+    footer.site-footer{max-width:var(--maxw);margin:18px auto;padding:12px;color:white;text-align:center}
+    .note{font-size:0.92rem;color:var(--muted);margin-top:8px}
+    .muted{color:var(--muted)}
+    /* camera UI */
+    #video{width:100%;border-radius:10px;background:#000}
+    #canvas{display:none}
+    .camera-box{position:relative;border-radius:10px;overflow:hidden}
+    .camera-overlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:70px;height:70px;border:2px dashed rgba(255,255,255,0.9);border-radius:8px;pointer-events:none}
+    /* calibration modal */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999 }
+    .modal .modal-card{width:90%;max-width:720px;background:white;padding:18px;border-radius:12px}
+    .flex{display:flex;gap:12px;align-items:center}
+    .spaced{display:flex;justify-content:space-between;align-items:center}
+    .badge { display:inline-block;padding:6px 8px;border-radius:8px;background:#f0fbff;color:var(--muted);font-weight:700 }
+    /* long form spacing */
+    .section{margin-bottom:18px}
+    /* helper colors */
+    .good {color:var(--good)} .bad {color:var(--bad)} .warn {color:var(--warn)}
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">WH</div>
+      <div>
+        <div class="title">Water Health & Index</div>
+        <div style="font-size:12px;opacity:0.9">Accurate water checks • Camera pH estimation • Geo-linked sharing</div>
+      </div>
+    </div>
+
+    <nav class="site-nav">
+      <a href="index.html" class="active">Home</a>
+      <a href="map.html">Map</a>
+      <a href="phchart.html">pH Chart</a>
+      <a href="phcare.html">pH Care</a>
+      <a href="details.html">Details</a>
+    </nav>
+  </header>
+
+  <!-- Page content -->
+  <div class="page-wrap">
+    <div class="container">
+
+      <div class="layout">
+        <!-- LEFT: main controls -->
+        <section>
+          <h2>Enter measurements</h2>
+          <p class="small">Type values or use the camera to scan a pH strip. Add your location and save to share.</p>
+
+          <div class="card section">
+            <label for="phInput">pH (0.0 - 14.0)</label>
+            <input id="phInput" type="number" step="0.1" min="0" max="14" placeholder="e.g., 7.2">
+
+            <label for="tempInput">Temperature (°C)</label>
+            <input id="tempInput" type="number" step="0.1" min="-5" max="60" placeholder="e.g., 24.5">
+
+            <label for="turbiditySelect">Turbidity</label>
+            <select id="turbiditySelect">
+              <option value="">Select turbidity</option>
+              <option value="low">Low — Clear</option>
+              <option value="medium">Medium — Cloudy</option>
+              <option value="high">High — Muddy</option>
+            </select>
+
+            <div class="controls-row">
+              <button id="analyzeBtn" class="btn">Calculate Index</button>
+              <button id="cameraToggleBtn" class="btn ghost">Open Camera</button>
+              <button id="calibrateBtn" class="btn ghost">Calibration</button>
+            </div>
+
+            <div id="cameraArea" class="card" style="display:none;margin-top:12px">
+              <h4 style="margin:0 0 8px 0">Camera pH Reader</h4>
+              <div class="camera-box">
+                <video id="video" autoplay playsinline></video>
+                <div class="camera-overlay" title="Align the center of the strip here"></div>
+                <canvas id="canvas"></canvas>
+              </div>
+              <div style="margin-top:8px" class="controls-row">
+                <button id="captureBtn" class="btn">Capture Color</button>
+                <button id="sampleAvgBtn" class="btn ghost">Sample Avg (5)</button>
+                <button id="closeCamBtn" class="btn ghost">Close Camera</button>
+              </div>
+              <div id="cameraNote" class="note">Tip: hold strip steady in the overlay box under neutral white light. Use calibration for better accuracy.</div>
+            </div>
+
+            <div style="margin-top:12px" class="section">
+              <div class="flex spaced">
+                <div>
+                  <button id="useLocationBtn" class="btn ghost">Use My Location</button>
+                  <span id="locStatus" class="small" style="margin-left:8px">No location attached</span>
+                </div>
+                <div>
+                  <button id="saveBtn" class="btn">Save Reading</button>
+                  <button id="exportBtn" class="btn ghost">Export CSV</button>
+                </div>
+              </div>
+              <div class="note">Saved readings are sent to the project's Firebase Realtime Database. Local copy is kept as fallback.</div>
+            </div>
+
+          </div>
+
+          <!-- Result -->
+          <div id="resultCard" class="card section" style="display:none">
+            <div class="result-large">
+              <div id="bubble" class="score-bubble">--</div>
+              <div class="meta">
+                <div><strong>Water Health Index</strong> <span id="statusChip" class="status-chip status-good">GOOD</span></div>
+                <div id="subscores" class="small muted">pH: - • Temp: - • Turb</div>
+                <div id="advice" style="margin-top:8px;font-size:0.98rem"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- History and CSV Import -->
+          <div class="card section">
+            <h3>Saved readings (recent)</h3>
+            <div class="history">
+              <table id="historyTable">
+                <thead><tr><th>Time</th><th>pH</th><th>Temp</th><th>Turb</th><th>Index</th><th>Loc</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div style="margin-top:8px" class="controls-row">
+              <input id="fileInput" type="file" accept=".csv" style="display:none" />
+              <button id="importBtn" class="btn ghost">Import CSV</button>
+              <button id="clearLocalBtn" class="btn ghost">Clear Local Data</button>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- RIGHT: map preview, stats, quick tips -->
+        <aside>
+          <div class="card">
+            <h3>Map preview</h3>
+            <div id="miniMap" class="map-preview"></div>
+            <div style="margin-top:8px" class="note">Saved readings with location appear here. For global sharing the Firebase DB is used.</div>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <h4>Quick stats</h4>
+            <div class="small">Total saved: <span id="statTotal">0</span></div>
+            <div class="small">With location: <span id="statGeo">0</span></div>
+            <div style="margin-top:8px"><strong>Latest:</strong><div id="latestSummary" class="small muted">—</div></div>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <h4>About camera pH reader</h4>
+            <p class="small muted">This uses color sampling of the strip center and compares to a calibrated color map. Calibration is strongly recommended for accurate results under your lighting and camera.</p>
+            <div style="margin-top:8px">
+              <button id="openCalModal" class="btn ghost">Open Calibration</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    © 2025 Water Health & Index — Built by Pranshu & Team
+  </footer>
+
+  <!-- Modal: Calibration -->
+  <div id="calibrationModal" class="modal" role="dialog" aria-hidden="true">
+    <div class="modal-card">
+      <div class="spaced" style="margin-bottom:12px">
+        <h3>Camera pH Calibration</h3>
+        <button id="closeCalModal" class="btn ghost">Close</button>
+      </div>
+
+      <p class="small muted">Calibration maps measured RGB colors to known pH values under your lighting. Use manufacturer pH strips and capture each reference color in turn (e.g., pH 4, 6, 7, 8, 10).</p>
+
+      <div id="calEntries"></div>
+
+      <div style="margin-top:12px" class="controls-row">
+        <button id="addCalPoint" class="btn">Add calibration point</button>
+        <button id="saveCalibration" class="btn">Save Calibration</button>
+        <button id="resetCalibration" class="btn ghost">Reset</button>
+      </div>
+
+      <div id="calPreview" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- Canvas for color operations (hidden) -->
+  <canvas id="workCanvas" style="display:none"></canvas>
+
+  <!-- Scripts: core logic -->
+  <script>
+  /* ==========================
+     Firebase config (from you)
+     ========================== */
+  const firebaseConfig = {
+    apiKey: "AIzaSyCIgZOJcjxG1q_wLXsQfxoKTY7o_6zkEDc",
+    authDomain: "waterhealthandindex.firebaseapp.com",
+    projectId: "waterhealthandindex",
+    storageBucket: "waterhealthandindex.firebasestorage.app",
+    messagingSenderId: "512269478610",
+    appId: "1:512269478610:web:d17254c1659e8ec2141b0b",
+    measurementId: "G-BGY7HCP7XX"
+  };
+  /* Initialize Firebase (compat) */
+  try {
+    firebase.initializeApp(firebaseConfig);
+    var database = firebase.database();
+    console.log("Firebase initialized");
+  } catch(e) {
+    console.warn("Firebase init error:", e);
+    var database = null;
+  }
+
+  /* ==========================
+     Utility helpers
+     ========================== */
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function round(v, d=0){ return Number(v.toFixed(d)); }
+  function nowTS(){ return new Date().toISOString(); }
+
+  /* ==========================
+     Scoring & advice bank (>=31 responses)
+     ========================== */
+  function scorePH(ph){
+    const diff = Math.abs(ph - 7.0);
+    const penalty = 7.5 * Math.pow(diff, 1.55);
+    return clamp(100 - penalty, 0, 100);
+  }
+  function scoreTemp(t){
+    if(isNaN(t)) return 80;
+    if(t >= 20 && t <= 26) return 100;
+    if(t < 20) return clamp(100 - Math.pow(20 - t, 1.2) * 4.5, 0, 100);
+    return clamp(100 - Math.pow(t - 26, 1.25) * 5.5, 0, 100);
+  }
+  function scoreTurb(t){
+    if(t === 'low') return 100;
+    if(t === 'medium') return 62;
+    if(t === 'high') return 28;
+    return 50;
+  }
+
+  const ADVICE_BANK = [
+    "100 — Pristine: exemplary water. Preserve this site and use as baseline.",
+    "95–99 — Outstanding: minimal human impact. Monitor seasonally.",
+    "90–94 — Near-perfect: rare small changes may occur after storms.",
+    "85–89 — Excellent: safe for recreation and aquatic life.",
+    "80–84 — Very good: minor cautions after heavy rainfall.",
+    "75–79 — Good: slight stress to sensitive species; monitor upstream.",
+    "70–74 — Fair-good: reduce sediment inputs; natural vegetation helps.",
+    "65–69 — Fair: consider filtration for domestic use; watch trends.",
+    "60–64 — Moderate-fair: test for nutrients (nitrate/phosphate).",
+    "55–59 — Borderline: implement buffer strips and reduce runoff.",
+    "50–54 — Caution: avoid drinking untreated; use basic filtration.",
+    "45–49 — Below desirable: aquatic life may be stressed; investigate.",
+    "40–44 — Degraded: test for pollution sources and heavy metals.",
+    "35–39 — Poor: turbidity or pH issues likely; reduce point-source discharge.",
+    "30–34 — Very poor: chemical contamination possible; lab tests advised.",
+    "25–29 — Critical: avoid direct contact; notify authorities if widespread.",
+    "20–24 — Severe: immediate protective action and sample collection.",
+    "15–19 — Extreme: ecosystem stress severe; restoration required.",
+    "10–14 — Near collapse: extreme conditions; professional intervention.",
+    "5–9 — Catastrophic: dangerous for wildlife; urgent remediation.",
+    "1–4 — Catastrophic II: do not approach; specialist cleanup needed.",
+    "0 — Dead zone: long-term remediation required before recovery.",
+    /* Extended nuanced lines: */
+    "88 — Very healthy; small seasonal variations expected.",
+    "72 — Moderate health; runoff likely after storms.",
+    "66 — Slightly stressed; consider riparian planting.",
+    "58 — Needs attention; reduce point-source discharges.",
+    "43 — Polluted; suspect sewage or heavy sediments.",
+    "31 — High turbidity reduces light penetration and photosynthesis.",
+    "21 — Chemical pollution likely; test for metals and organics.",
+    "11 — Toxic warning; urgent lab testing advised."
+  ];
+
+  function adviceFor(index){
+    // pick nearest matching message from ADVICE_BANK
+    if(index >= 99) return ADVICE_BANK[0];
+    if(index >= 95) return ADVICE_BANK[1];
+    if(index >= 90) return ADVICE_BANK[2];
+    if(index >= 85) return ADVICE_BANK[3];
+    if(index >= 80) return ADVICE_BANK[4];
+    if(index >= 75) return ADVICE_BANK[5];
+    if(index >= 70) return ADVICE_BANK[6];
+    if(index >= 65) return ADVICE_BANK[7];
+    if(index >= 60) return ADVICE_BANK[8];
+    if(index >= 55) return ADVICE_BANK[9];
+    if(index >= 50) return ADVICE_BANK[10];
+    if(index >= 45) return ADVICE_BANK[11];
+    if(index >= 40) return ADVICE_BANK[12];
+    if(index >= 35) return ADVICE_BANK[13];
+    if(index >= 30) return ADVICE_BANK[14];
+    if(index >= 25) return ADVICE_BANK[15];
+    if(index >= 20) return ADVICE_BANK[16];
+    if(index >= 15) return ADVICE_BANK[17];
+    if(index >= 10) return ADVICE_BANK[18];
+    if(index >= 5) return ADVICE_BANK[19];
+    if(index >= 1) return ADVICE_BANK[20];
+    return ADVICE_BANK[21];
+  }
+
+  function computeIndex(ph, temp, turb){
+    const p = scorePH(ph);
+    const t = scoreTemp(temp);
+    const u = scoreTurb(turb);
+    // weights: pH 50%, temp 25%, turb 25%
+    let raw = p*0.5 + t*0.25 + u*0.25;
+    // apply additional penalty if any subscore is critically low
+    const minSub = Math.min(p,t,u);
+    if(minSub < 35) raw -= (35 - minSub) * 0.65;
+    raw = clamp(Math.round(raw), 0, 100);
+    return {index: raw, subs: {p,t,u}};
+  }
+
+  /* ==========================
+     Storage: local + firebase
+     ========================== */
+  const LS_KEY = 'wh_local_readings_v1';
+  function loadLocal(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch(e){ return []; } }
+  function saveLocal(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
+
+  function pushToFirebase(entry){
+    if(!database) return Promise.reject("No firebase");
+    // push under 'waterReadings'
+    return database.ref('waterReadings').push(entry);
+  }
+
+  /* ==========================
+     Camera & color detection
+     ========================== */
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const workCanvas = document.getElementById('workCanvas');
+  const ctxWork = workCanvas.getContext('2d');
+
+  let streamTrack = null;
+  let samplingMode = 'single'; // or 'avg'
+  let calibration = []; // array of {ph, r,g,b} saved to localStorage
+
+  function loadCalibration(){
+    try { calibration = JSON.parse(localStorage.getItem('wh_calibration_v1') || '[]'); }
+    catch(e){ calibration = []; }
+  }
+  function saveCalibration(){
+    localStorage.setItem('wh_calibration_v1', JSON.stringify(calibration));
+  }
+
+  loadCalibration();
+
+  async function openCamera(){
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}, audio:false});
+      video.srcObject = s;
+      streamTrack = s;
+      document.getElementById('cameraArea').style.display = 'block';
+    } catch(err){
+      alert('Camera access error: ' + (err.message || err));
+    }
+  }
+  function closeCamera(){
+    if(streamTrack){
+      streamTrack.getTracks().forEach(t=>t.stop());
+      streamTrack = null;
+    }
+    video.srcObject = null;
+    document.getElementById('cameraArea').style.display = 'none';
+  }
+
+  // sample center pixel average over small box
+  function sampleCenterRGB(box=10){
+    const vW = video.videoWidth, vH = video.videoHeight;
+    if(!vW || !vH) return null;
+    workCanvas.width = vW; workCanvas.height = vH;
+    ctxWork.drawImage(video, 0, 0, vW, vH);
+    const cx = Math.floor(vW/2 - box/2), cy = Math.floor(vH/2 - box/2);
+    try {
+      const img = ctxWork.getImageData(cx, cy, box, box).data;
+      let r=0,g=0,b=0,cnt=0;
+      for(let i=0;i<img.length;i+=4){
+        r += img[i]; g += img[i+1]; b += img[i+2]; cnt++;
+      }
+      return {r: Math.round(r/cnt), g: Math.round(g/cnt), b: Math.round(b/cnt)};
+    } catch(e){
+      return null;
+    }
+  }
+
+  // color distance (Euclidean)
+  function colorDist(a,b){ return Math.sqrt(Math.pow(a.r-b.r,2)+Math.pow(a.g-b.g,2)+Math.pow(a.b-b.b,2)); }
+
+  // estimate pH from RGB using calibration map or fallback simple mapping
+  function estimatePHFromRGB(rgb){
+    // if calibration available, find closest calibrated point by color distance and interpolate nearest neighbors
+    if(calibration && calibration.length >= 3){
+      // find nearest by color distance
+      let best = null;
+      for(const c of calibration){
+        const d = colorDist(rgb, c.rgb);
+        if(!best || d < best.dist) best = {c, dist:d};
+      }
+      // find top 3 and weighted average
+      const sorted = calibration.map(c=>({c, d:colorDist(rgb,c.rgb)})).sort((a,b)=>a.d-b.d).slice(0,4);
+      let wsum=0, phsum=0;
+      for(const s of sorted){
+        const w = 1/(s.d+1); // inverse distance
+        phsum += s.c.ph * w;
+        wsum += w;
+      }
+      const phEst = phsum / (wsum || 1);
+      return clamp(round(phEst,2), 0, 14);
+    }
+
+    // fallback heuristic mapping (improved):
+    // convert to HSV-like metric to separate hue/brightness; approximate mapping:
+    const {r,g,b} = rgb;
+    const mx = Math.max(r,g,b), mn = Math.min(r,g,b), diff = mx - mn;
+    let hue = 0;
+    if(diff === 0) hue = 0;
+    else if(mx === r) hue = (60 * ((g - b)/diff) + 360) % 360;
+    else if(mx === g) hue = (60 * ((b - r)/diff) + 120) % 360;
+    else hue = (60 * ((r - g)/diff) + 240) % 360;
+    const light = (mx + mn)/2 / 255; // 0..1
+
+    // Typical pH strip colors roughly:
+    // red/orange -> acidic (2-5), yellow -> near neutral 6-7, green -> neutral ~7-8, blue -> alkaline ~9-11
+    let ph = 7.0;
+    if(hue >= 330 || hue <= 30) ph = 3 + (30 - Math.abs(hue <= 30 ? hue : 360-hue)) / 30 * 2; // red->orange
+    else if(hue > 30 && hue <= 80) ph = 5 + (80-hue)/50 * 2; // yellowish -> 5-7
+    else if(hue > 80 && hue <= 160) ph = 7 + (160-hue)/80 * 1.2; // green -> 6.8-7.8
+    else if(hue > 160 && hue <= 260) ph = 8.5 + (260-hue)/100 * 2.5; // cyan-blue -> 9-11
+    else ph = 7.0;
+    // adjust by lightness: very dark could indicate low saturation - reduce confidence
+    if(light < 0.25) ph += (0.25 - light)*4; // slight compensation
+    return clamp(round(ph,2), 0, 14);
+  }
+
+  /* ==========================
+     UI element refs + event wiring
+     ========================== */
+  const phInput = document.getElementById('phInput');
+  const tempInput = document.getElementById('tempInput');
+  const turbiditySelect = document.getElementById('turbiditySelect');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const cameraToggleBtn = document.getElementById('cameraToggleBtn');
+  const cameraArea = document.getElementById('cameraArea');
+  const captureBtn = document.getElementById('captureBtn');
+  const sampleAvgBtn = document.getElementById('sampleAvgBtn');
+  const closeCamBtn = document.getElementById('closeCamBtn');
+  const calibrateBtn = document.getElementById('calibrateBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  const useLocationBtn = document.getElementById('useLocationBtn');
+  const locStatus = document.getElementById('locStatus');
+  const resultCard = document.getElementById('resultCard');
+  const bubble = document.getElementById('bubble');
+  const statusChip = document.getElementById('statusChip');
+  const subscores = document.getElementById('subscores');
+  const adviceEl = document.getElementById('advice');
+  const historyTbody = document.querySelector('#historyTable tbody');
+  const miniMap = document.getElementById('miniMap');
+  const statTotal = document.getElementById('statTotal');
+  const statGeo = document.getElementById('statGeo');
+  const latestSummary = document.getElementById('latestSummary');
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const fileInput = document.getElementById('fileInput');
+  const clearLocalBtn = document.getElementById('clearLocalBtn');
+  const openCalModal = document.getElementById('openCalModal');
+  const calibrationModal = document.getElementById('calibrationModal');
+  const closeCalModal = document.getElementById('closeCalModal');
+  const addCalPoint = document.getElementById('addCalPoint');
+  const saveCalibrationBtn = document.getElementById('saveCalibration');
+  const resetCalibrationBtn = document.getElementById('resetCalibration');
+  const calEntries = document.getElementById('calEntries');
+  const calPreview = document.getElementById('calPreview');
+
+  let lastGeo = null; // {lat,lng,displayName}
+  let latestReading = null;
+
+  function updateStatsUI(){
+    const arr = loadLocal();
+    statTotal.textContent = arr.length;
+    statGeo.textContent = arr.filter(a=>a.loc).length;
+    latestSummary.textContent = arr.length ? `${arr[0].index}/100 — pH ${arr[0].ph} • ${arr[0].temp}°C • ${arr[0].turb}` : '—';
+  }
+
+  function renderHistory(){
+    const arr = loadLocal();
+    historyTbody.innerHTML = '';
+    for(const r of arr){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${new Date(r.ts).toLocaleString()}</td><td>${r.ph}</td><td>${r.temp}</td><td>${r.turb}</td><td>${r.index}</td><td>${r.loc? '✓':'-'}</td>`;
+      historyTbody.appendChild(tr);
+    }
+    updateStatsUI();
+    renderMiniMap();
+  }
+
+  /* ==========================
+     Analysis flow
+     ========================== */
+  function analyzeNow(showUI=true){
+    const ph = parseFloat(phInput.value);
+    const temp = parseFloat(tempInput.value);
+    const turb = turbiditySelect.value;
+    if(isNaN(ph) || isNaN(temp) || !turb){
+      alert('Please provide pH, temperature and turbidity.');
+      return null;
+    }
+    const {index, subs} = computeIndex(ph, temp, turb);
+    latestReading = {ts: Date.now(), ph: ph, temp: temp, turb: turb, index: index, loc: lastGeo};
+    if(showUI){
+      resultCard.style.display = 'block';
+      bubble.textContent = index;
+      bubble.style.background = index >= 80 ? 'linear-gradient(135deg,#2e7d32,#66bb6a)' : (index >= 50 ? 'linear-gradient(135deg,#f9a825,#ffd54f)' : 'linear-gradient(135deg,#c62828,#ff8a80)');
+      statusChip.textContent = index >= 80 ? 'GOOD' : (index >= 50 ? 'MODERATE' : 'POOR');
+      statusChip.className = 'status-chip ' + (index >= 80 ? 'status-good' : (index >= 50 ? 'status-warn' : 'status-bad'));
+      subscores.textContent = `pH: ${Math.round(subs.p)} • Temp: ${Math.round(subs.t)} • Turb: ${Math.round(subs.u)}`;
+      adviceEl.textContent = adviceFor(index);
+    }
+    return latestReading;
+  }
+
+  analyzeBtn.addEventListener('click', ()=> analyzeNow(true));
+
+  /* ==========================
+     Save / Export / Import
+     ========================== */
+  function saveReadingToLocalAndFirebase(entry){
+    const arr = loadLocal(); arr.unshift(entry); saveLocal(arr);
+    renderHistory();
+    // try push to firebase
+    if(database){
+      const pushEntry = Object.assign({}, entry);
+      // if large objects (loc) convert to plain
+      if(pushEntry.loc && pushEntry.loc.lat) { pushEntry.lat = pushEntry.loc.lat; pushEntry.lng = pushEntry.loc.lng; delete pushEntry.loc; }
+      database.ref('waterReadings').push(pushEntry)
+        .then(()=> console.log('pushed to firebase'))
+        .catch(e=> console.warn('firebase push failed', e));
+    }
+  }
+
+  saveBtn.addEventListener('click', ()=>{
+    const reading = analyzeNow(false);
+    if(!reading){ alert('Please analyze first'); return; }
+    // attach timestamp and location stored in lastGeo (if any)
+    const entry = Object.assign({}, reading, {ts: Date.now(), loc: lastGeo});
+    saveReadingToLocalAndFirebase(entry);
+    alert('Reading saved (local + attempted cloud).');
+  });
+
+  exportBtn.addEventListener('click', ()=>{
+    const arr = loadLocal();
+    if(!arr.length){ alert('No readings to export'); return; }
+    const rows = arr.map(r => [
+      new Date(r.ts).toISOString(), r.ph, r.temp, r.turb, r.index, r.loc? r.loc.lat:'', r.loc? r.loc.lng:'' ]);
+    const csv = ['ts,ph,temp,turb,index,lat,lng', ...rows.map(r=>r.join(','))].join('\n');
+    const blob = new Blob([csv], {type:'text/csv'}), url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'water_readings.csv'; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },500);
+  });
+
+  importBtn.addEventListener('click', ()=> fileInput.click());
+  fileInput.addEventListener('change', e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ()=> {
+      const text = reader.result.trim();
+      const lines = text.split('\n').map(l=>l.split(','));
+      const entries = [];
+      for(let i=1;i<lines.length;i++){
+        const [ts,ph,temp,turb,index,lat,lng] = lines[i];
+        entries.push({ts: new Date(ts).getTime()||Date.now(), ph: parseFloat(ph)||0, temp: parseFloat(temp)||0, turb: turb||'low', index: parseInt(index)||0, loc: (lat && lng)? {lat:parseFloat(lat), lng:parseFloat(lng)} : null});
+      }
+      const existing = loadLocal();
+      const merged = entries.concat(existing);
+      saveLocal(merged);
+      renderHistory();
+      alert('Imported ' + entries.length + ' readings.');
+    };
+    reader.readAsText(f);
+  });
+
+  clearLocalBtn.addEventListener('click', ()=> {
+    if(!confirm('Clear local saved readings?')) return;
+    localStorage.removeItem(LS_KEY);
+    renderHistory();
+  });
+
+  /* ==========================
+     Geolocation & reverse geocode
+     ========================== */
+  async function reverseGeocode(lat, lng){
+    // using Nominatim (OpenStreetMap) reverse geocoding (no API key)
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+      if(!res.ok) return null;
+      const data = await res.json();
+      return data.display_name || null;
+    } catch(e){
+      return null;
+    }
+  }
+
+  useLocationBtn.addEventListener('click', ()=> {
+    locStatus.textContent = 'Getting location...';
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      const lat = pos.coords.latitude, lng = pos.coords.longitude;
+      const name = await reverseGeocode(lat,lng);
+      lastGeo = {lat,lng,displayName: name || `${lat.toFixed(3)},${lng.toFixed(3)}`};
+      locStatus.textContent = `Attached: ${lastGeo.displayName}`;
+    }, err=>{
+      locStatus.textContent = 'Location denied or unavailable';
+      alert('Unable to fetch location. Allow location permissions and try again.');
+    }, { enableHighAccuracy:true, timeout:10000 });
+  });
+
+  /* ==========================
+     Mini map rendering (Leaflet lite)
+     ========================== */
+  // include leaflet via CDN only when needed (dynamically)
+  async function ensureLeaflet(){
+    if(window.L) return Promise.resolve(window.L);
+    await new Promise((res,rej)=>{
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      s.onload = res; s.onerror = rej; document.head.appendChild(s);
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    });
+    return window.L;
+  }
+
+  let miniMapObj = null, markersLayer = null;
+  async function renderMiniMap(){
+    const L = await ensureLeaflet();
+    if(!miniMapObj){
+      miniMapObj = L.map(miniMap, {attributionControl:false, zoomControl:false}).setView([20,0],2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(miniMapObj);
+      markersLayer = L.layerGroup().addTo(miniMapObj);
+    }
+    markersLayer.clearLayers();
+    const arr = loadLocal();
+    for(const r of arr){
+      if(r.loc && r.loc.lat){
+        const color = r.index >= 80 ? '#2e7d32' : (r.index >= 50 ? '#f9a825' : '#c62828');
+        const m = L.circleMarker([r.loc.lat, r.loc.lng], {radius:6, color:'#000', fillColor:color, fillOpacity:0.9, weight:0.6});
+        m.bindPopup(`<b>Index: ${r.index}</b><br>pH: ${r.ph}<br>Temp: ${r.temp}°C<br>${new Date(r.ts).toLocaleString()}`);
+        m.addTo(markersLayer);
+      }
+    }
+    if(markersLayer.getLayers().length) miniMapObj.fitBounds(markersLayer.getBounds(), {padding:[40,40]});
+  }
+
+  /* ==========================
+     Camera capture handlers
+     ========================== */
+  captureBtn.addEventListener('click', ()=>{
+    const rgb = sampleCenterRGB(30);
+    if(!rgb){ alert('Camera not ready. Ensure camera is allowed and visible.'); return; }
+    const est = estimatePHFromRGB(rgb);
+    phInput.value = est;
+    document.getElementById('cameraNote').textContent = `Captured color: R${rgb.r} G${rgb.g} B${rgb.b} → pH ~ ${est}`;
+    // small flash UI
+  });
+
+  sampleAvgBtn.addEventListener('click', async ()=>{
+    // sample 5 times and average
+    if(!streamTrack){ alert('Camera not open'); return; }
+    const samples = [];
+    for(let i=0;i<5;i++){
+      await new Promise(r=>setTimeout(r, 300));
+      const s = sampleCenterRGB(20);
+      if(s) samples.push(s);
+    }
+    if(!samples.length) { alert('No samples taken'); return; }
+    const avg = samples.reduce((acc,c)=>({r:acc.r+c.r,g:acc.g+c.g,b:acc.b+c.b}), {r:0,g:0,b:0});
+    avg.r = Math.round(avg.r/samples.length); avg.g = Math.round(avg.g/samples.length); avg.b = Math.round(avg.b/samples.length);
+    const ph = estimatePHFromRGB(avg);
+    phInput.value = ph;
+    document.getElementById('cameraNote').textContent = `Avg capture → R${avg.r} G${avg.g} B${avg.b} → pH ${ph}`;
+  });
+
+  cameraToggleBtn.addEventListener('click', ()=> {
+    if(streamTrack) { closeCamera(); cameraToggleBtn.textContent = 'Open Camera'; }
+    else { openCamera(); cameraToggleBtn.textContent = 'Close Camera'; }
+  });
+  closeCamBtn.addEventListener('click', ()=> { closeCamera(); cameraToggleBtn.textContent = 'Open Camera'; });
+
+  /* ==========================
+     Calibration UI
+     ========================== */
+  openCalModal.addEventListener('click', ()=> {
+    calibrationModal.style.display = 'flex';
+    renderCalEntries();
+  });
+  closeCalModal.addEventListener('click', ()=> calibrationModal.style.display = 'none');
+
+  addCalPoint.addEventListener('click', ()=> {
+    // add a cal input row
+    const id = 'cal_' + Date.now();
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex'; wrapper.style.marginTop = '8px';
+    wrapper.innerHTML = `<input placeholder="pH value (e.g. 7.0)" type="number" step="0.1" id="${id}_ph" style="width:120px;padding:8px;border-radius:8px;border:1px solid #ddd"/>
+      <button class="btn" id="${id}_cap">Capture Color</button>
+      <div id="${id}_preview" class="badge" style="margin-left:8px">—</div>`;
+    calEntries.appendChild(wrapper);
+
+    // attach capture event
+    document.getElementById(id + '_cap').addEventListener('click', ()=> {
+      const rgb = sampleCenterRGB(30);
+      const phVal = parseFloat(document.getElementById(id + '_ph').value);
+      if(!rgb){ alert('Camera not ready'); return; }
+      if(isNaN(phVal)){ alert('Enter a pH for this calibration point'); return; }
+      calibration.push({ph:phVal, rgb:rgb});
+      saveCalibration();
+      renderCalEntries();
+      calPreview.innerHTML = `<div class="small">Added calibration: pH ${phVal} → R${rgb.r} G${rgb.g} B${rgb.b}</div>`;
+    });
+  });
+
+  resetCalibrationBtn.addEventListener('click', ()=> {
+    if(!confirm('Reset saved calibration?')) return;
+    calibration = []; saveCalibration(); renderCalEntries(); calPreview.innerHTML = '';
+  });
+
+  saveCalibrationBtn.addEventListener('click', ()=> {
+    saveCalibration(); alert('Calibration saved to browser storage.');
+  });
+
+  function renderCalEntries(){
+    calEntries.innerHTML = '';
+    if(!calibration.length){
+      calEntries.innerHTML = '<div class="small muted">No calibration points saved. Use "Add calibration point" and capture colors for known pH reference strips.</div>';
+      return;
+    }
+    for(const c of calibration){
+      const div = document.createElement('div');
+      div.className = 'flex'; div.style.marginTop = '8px';
+      div.innerHTML = `<div style="width:18px;height:18px;border-radius:4px;background:rgb(${c.rgb.r},${c.rgb.g},${c.rgb.b});margin-right:10px"></div>
+        <div class="small">pH ${c.ph} — R${c.rgb.r} G${c.rgb.g} B${c.rgb.b}</div>
+        <button class="btn ghost" style="margin-left:auto">Remove</button>`;
+      const rm = div.querySelector('button');
+      rm.addEventListener('click', ()=> {
+        if(!confirm('Remove this calibration point?')) return;
+        calibration = calibration.filter(x=>!(x.ph===c.ph && x.rgb.r===c.rgb.r && x.rgb.g===c.rgb.g && x.rgb.b===c.rgb.b));
+        saveCalibration(); renderCalEntries();
+      });
+      calEntries.appendChild(div);
+    }
+  }
+
+  /* ==========================
+     Init load
+     ========================== */
+  loadCalibration();
+  renderHistory();
+
+  // on load try to render mini-map after a short delay (so leaflet can load async)
+  setTimeout(()=> { try { renderMiniMap(); } catch(e){} }, 1200);
+
+  </script>
+</body>
+</html>
